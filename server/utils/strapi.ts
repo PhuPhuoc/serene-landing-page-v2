@@ -1,64 +1,117 @@
 /**
  * server/utils/strapi.ts
- * ------------------------------------------------------------------
- * Nơi DUY NHẤT trong app biết cách "nói chuyện" với Strapi:
- * build URL, gắn token bí mật, serialize query dạng bracket-notation.
+ * ==================================================================
+ * MỤC ĐÍCH: Đây là NƠI DUY NHẤT trong toàn bộ ứng dụng biết cách
+ * "nói chuyện" với Strapi CMS. Tất cả các route handlers muốn lấy
+ * dữ liệu từ Strapi đều phải đi qua hàm này.
  *
- * Lưu ý quan trọng: file này chỉ chạy được trong server/ vì nó dùng
- * useRuntimeConfig() để đọc `strapiToken` — nếu copy hàm này sang
- * code chạy ở client, token sẽ bị lộ trong bundle JS.
- * ------------------------------------------------------------------
+ * TẠI SAO CẦN FILE NÀY?
+ * - Gom logic gọi API vào 1 chỗ: build URL, gắn token xác thực,
+ *   serialize query params đúng format Strapi yêu cầu
+ * - Token bí mật (strapiToken) chỉ đọc được ở SERVER, không bị
+ *   lộ ra browser (nếu import vào client code, token sẽ nằm
+ *   trong bundle JS và ai cũng đọc được!)
+ *
+ * CÁCH ĐỌC FILE:
+ *   1. strapiFetch() - hàm chính, gọi Strapi API
+ *   2. Phần còn lại là logic xử lý bên trong strapiFetch()
+ * ==================================================================
  */
 import qs from "qs";
 
 /**
- * Gọi REST API của Strapi.
+ * ==================================================================
+ * strapiFetch<T>(path, params)
+ * ==================================================================
+ * HÀM NÀY LÀM GÌ?
+ * Gửi request đến Strapi REST API và trả về dữ liệu đã parse JSON.
  *
- * @param path   Đường dẫn sau `/api`, vd "/header", "/pages/123"
- * @param params Object filter/populate/locale... sẽ được `qs` serialize
- *               thành query string dạng `populate[blocks][populate]=...`
- *               — đúng cú pháp Strapi yêu cầu cho query lồng nhau.
+ * NHẬN VÀO:
+ *   @param path  - Đường dẫn sau "/api", ví dụ: "/header", "/pages/123"
+ *                  Strapi REST API có dạng: {strapiUrl}/api/{path}
+ *   @param params - Object chứa các query params như:
+ *                  - locale: ngôn ngữ ("en", "vi")
+ *                  - populate: object chỉ định field cần lấy (nested)
+ *                  - filters: điều kiện lọc
+ *                  Object này sẽ được `qs.stringify` chuyển thành
+ *                  query string dạng Strapi yêu cầu:
+ *                  `populate[logoOnLight]=true&populate[navItems][populate]=...`
  *
- * Không tự bắt lỗi ở đây — để nơi gọi (route handler) quyết định xử lý
- * lỗi thế nào (xem utils/errors.ts::handleStrapiError), tránh việc
- * hàm dùng chung tự ý nuốt lỗi hoặc trả về giá trị "giả" khi thất bại.
+ * RETURN:
+ *   Promise<T> - Dữ liệu JSON từ Strapi, được ép kiểu thành T
+ *               (TypeScript type assertion - không có runtime validation)
+ *
+ * LƯU Ý QUAN TRỌNG:
+ *   - Hàm này KHÔNG tự bắt lỗi - nơi gọi phải try/catch
+ *   - Nếu Strapi trả lỗi (4xx, 5xx), $fetch sẽ throw exception
+ *   - Việc xử lý lỗi thế nào là do nơi gọi quyết định (xem errors.ts)
+ * ==================================================================
  */
 export async function strapiFetch<T = unknown>(
   path: string,
   params: Record<string, unknown> = {},
 ): Promise<T> {
+  // -----------------------------------------------------------
+  // Bước 1: Đọc cấu hình Strapi từ runtimeConfig
+  // -----------------------------------------------------------
+  // useRuntimeConfig() là hàm của Nuxt, đọc config từ nuxt.config.ts
+  // và biến môi trường (.env). Chỉ chạy được ở SERVER.
   const { strapiUrl, strapiToken } = useRuntimeConfig();
 
+  // -----------------------------------------------------------
+  // Bước 2: Serialize params thành query string
+  // -----------------------------------------------------------
+  // qs (query-string) library chuyển object lồng nhau thành
+  // bracket notation mà Strapi yêu cầu:
+  // Input:  { populate: { logo: true, nav: { populate: { items: true } } } }
+  // Output: "populate[logo]=true&populate[nav][populate][items]=true"
+  //
+  // encodeValuesOnly: true = chỉ encode giá trị, không encode key
+  // (Strapi thường không parse đúng nếu key bị encode)
   const query = qs.stringify(params, { encodeValuesOnly: true });
+
+  // -----------------------------------------------------------
+  // Bước 3: Build URL hoàn chỉnh
+  // -----------------------------------------------------------
+  // Ghép: {strapiUrl}/api/{path} + ?{query}
+  // Ví dụ: "http://localhost:1337/api/header?locale=en&populate[logoOnLight]=true"
   const url = `${strapiUrl}/api${path}${query ? `?${query}` : ""}`;
 
-  // $fetch (Nitro/ofetch) tự parse JSON và tự throw khi status không phải 2xx
-  // — khác với fetch() gốc vốn im lặng trả response lỗi và cần check `res.ok`
-  // thủ công. Nhờ vậy nơi gọi chỉ cần try/catch là đủ.
+  // -----------------------------------------------------------
+  // Bước 4: Gọi API
+  // -----------------------------------------------------------
+  // $fetch của Nitro/ofetch:
+  // - Tự parse JSON response thành object
+  // - Tự throw error nếu status code không phải 2xx
+  // - KHÁC với fetch() gốc: fetch() không throw, phải check .ok
   //
-  // CỐ TÌNH không viết `$fetch<T>(url, ...)`: Nuxt có cơ chế "typed API
-  // routes" — khi truyền generic thẳng vào $fetch, TypeScript sẽ tính
-  // kiểu trả về thành `TypedInternalResponse<..., T, "get">` (dựa trên
-  // chính chuỗi url) thay vì đơn giản là `T`, và vì `T` ở đây là generic
-  // tự do (ai gọi strapiFetch<X>() cũng được) nên TS không đảm bảo được
-  // 2 kiểu đó luôn khớp nhau -> lỗi "could be instantiated with an
-  // arbitrary type". Để $fetch tự suy ra kiểu (url là chuỗi ghép động
-  // nên nó không khớp route nào đã biết, tự suy ra kiểu lỏng lẻo), rồi
-  // tự ép kiểu bằng `as T` ở bước gán — đây là ranh giới TIN TƯỞNG có
-  // chủ đích: ta biết rõ Strapi trả về gì (theo type đã khai báo), chỉ
-  // là TypeScript (qua lớp $fetch) không tự chứng minh được điều đó.
+  // Authorization header: gắn Bearer token để Strapi xác thực
+  // Strapi sẽ reject request nếu token sai hoặc hết hạn
   const res = await $fetch(url, {
     headers: { Authorization: `Bearer ${strapiToken}` },
   });
 
-  return res as T;
+  // console.log("res:", JSON.stringify(res, null, 2));
 
-  // Ghi chú review: dòng `as T` trên KHÔNG có validate runtime — nếu
-  // Strapi đổi schema (đổi tên field, xóa field...), lỗi sẽ không lộ ra
-  // ở đây mà lộ ra muộn hơn, ở chỗ code cố truy cập field không tồn tại
-  // (rất khó trace). Nếu muốn chắc chắn hơn, có thể validate bằng `zod`
-  // (parse response qua z.object) trước khi return — đánh đổi là thêm 1
-  // dependency + tốn thời gian viết schema. Với dự án nhỏ/MVP, cách hiện
-  // tại (tin tưởng type) là chấp nhận được; nên nâng cấp khi dữ liệu
-  // Strapi phức tạp/hay đổi.
+  // -----------------------------------------------------------
+  // Bước 5: Return với type assertion
+  // -----------------------------------------------------------
+  // `as T` là TypeScript assertion, không phải runtime validation
+  //
+  // TẠI SAO DÙNG `as T` THAY VÌ `$fetch<T>()`?
+  // Nuxt có "typed API routes" - nếu viết $fetch<T>(url, ...):
+  // TypeScript sẽ suy ra kiểu là TypedInternalResponse<..., T, "get">
+  // thay vì đơn giản là T. Vì T là generic tự do, TS không đảm bảo
+  // 2 kiểu này khớp nhau -> lỗi "could be instantiated with
+  // an arbitrary type".
+  //
+  // GIẢI PHÁP: để $fetch tự suy kiểu (vì url là string ghép động,
+  // không khớp route nào đã biết -> kiểu lỏng lẻo), rồi `as T`
+  //
+  // HẠN CHẾ: nếu Strapi đổi schema (đổi tên field, xóa field...),
+  // lỗi sẽ không phát hiện ngay mà đến khi code truy cập field
+  // không tồn tại mới biết (rất khó trace).
+  //
+  // NÂNG CẤP TRONG TƯƠNG LAI: dùng Zod để validate runtime
+  return res as T;
 }
