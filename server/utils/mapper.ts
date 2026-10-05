@@ -2,7 +2,7 @@
 import type {
   StrapiMedia,
   StrapiNavItem,
-  StrapiNavLink,
+  StrapiLink,
   StrapiPageRef,
 } from "../types/strapi";
 
@@ -37,16 +37,16 @@ export function mapMedia(media: StrapiMedia, strapiDomainUrl: string): Media {
 }
 
 // Link ~ Navigation Link
-export enum NavLinkType {
+export enum LinkType {
   INTERNAL = "internal",
   EXTERNAL = "external",
   MODAL = "modal",
 }
 
-export type NavLink = {
+export type Link = {
   id: number;
   label: string;
-  type: NavLinkType;
+  type: LinkType;
   to?: string;
   newTab?: boolean;
   modalKey?: string;
@@ -59,24 +59,24 @@ function pageToPath(page: StrapiPageRef | null): string {
   return `/${page.locale}/${page.slug}`;
 }
 
-export function mapNavLink(link: StrapiNavLink): NavLink {
-  let type: NavLinkType;
+export function mapLink(link: StrapiLink): Link {
+  let type: LinkType;
   switch (link.type) {
     case "internal": {
-      type = NavLinkType.INTERNAL;
+      type = LinkType.INTERNAL;
       break;
     }
     case "external": {
-      type = NavLinkType.EXTERNAL;
+      type = LinkType.EXTERNAL;
       break;
     }
     case "modal": {
-      type = NavLinkType.MODAL;
+      type = LinkType.MODAL;
       break;
     }
   }
 
-  if (type === NavLinkType.MODAL) {
+  if (type === LinkType.MODAL) {
     return {
       id: link.id,
       label: link.label,
@@ -90,19 +90,17 @@ export function mapNavLink(link: StrapiNavLink): NavLink {
       type: type,
       newTab: link.openInNewTab,
       to:
-        type === NavLinkType.EXTERNAL
-          ? (link.url ?? "#")
-          : pageToPath(link.page),
+        type === LinkType.EXTERNAL ? (link.url ?? "#") : pageToPath(link.page),
     };
   }
 }
 
 // Menu's item
-export type MenuItem = NavLink & { children: NavLink[] };
+export type MenuItem = Link & { children: Link[] };
 
 export function mapMenuItem(item: StrapiNavItem): MenuItem {
   return {
-    ...mapNavLink(item.link), // Làm phẳng object (lấy tất cả prop của item.link, bỏ vào NavLink)
-    children: (item.children ?? []).map(mapNavLink),
+    ...mapLink(item.link), // Làm phẳng object (lấy tất cả prop của item.link, bỏ vào Link)
+    children: (item.children ?? []).map(mapLink),
   };
 }

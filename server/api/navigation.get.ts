@@ -4,10 +4,10 @@ import { resolveLocale } from "../utils/locale";
 import { handleStrapiError } from "../utils/errors";
 import {
   mapMedia,
-  mapNavLink,
+  mapLink,
   mapMenuItem,
   type Media,
-  type NavLink,
+  type Link,
   type MenuItem,
 } from "../utils/mapper.ts";
 
@@ -15,8 +15,8 @@ export type NavigationResponse = {
   logoOnLight: Media;
   logoOnDark: Media;
   menuItems: MenuItem[];
-  utilityLink: NavLink;
-  cta: NavLink;
+  utilityLink: Link;
+  cta: Link;
 };
 
 /*
@@ -99,8 +99,8 @@ export default defineEventHandler(
       logoOnLight: mapMedia(headerResponse.logoOnLight, strapiUrl),
       logoOnDark: mapMedia(headerResponse.logoOnDark, strapiUrl),
       menuItems: headerResponse.navItems.map(mapMenuItem),
-      utilityLink: mapNavLink(headerResponse.utilityLink),
-      cta: mapNavLink(headerResponse.cta),
+      utilityLink: mapLink(headerResponse.utilityLink),
+      cta: mapLink(headerResponse.cta),
     };
   },
 );

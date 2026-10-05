@@ -32,13 +32,14 @@ export type StrapiPageRef = {
   slug: string;
   locale: Locale;
   hidden: boolean;
+  blocks?: StrapiPageBlock[];
 };
 
 // Link
 export type StrapiLinkType = "internal" | "external" | "modal";
 export type StrapiLinkModalKey = "contactUs" | "joinMembership";
 
-export type StrapiNavLink = {
+export type StrapiLink = {
   id: number;
   label: string;
   type: StrapiLinkType;
@@ -51,8 +52,8 @@ export type StrapiNavLink = {
 // Navbar
 export type StrapiNavItem = {
   id: number;
-  link: StrapiNavLink;
-  children: StrapiNavLink[];
+  link: StrapiLink;
+  children: StrapiLink[];
 };
 
 // Header
@@ -62,6 +63,36 @@ export type StrapiHeader = {
   logoOnLight: StrapiMedia;
   logoOnDark: StrapiMedia;
   navItems: StrapiNavItem[];
-  utilityLink: StrapiNavLink;
-  cta: StrapiNavLink;
+  utilityLink: StrapiLink;
+  cta: StrapiLink;
 };
+
+// Shared
+export type StrapiTag = {
+  id: number;
+  label: string;
+};
+
+// Blocks:
+export type StrapiHeroBlock = {
+  __component: "block.hero";
+  id: number;
+  eyebrow?: string | null;
+  headline: string;
+  subheadline?: string | null;
+  backgroundImage: StrapiMedia;
+  imageCaption?: string | null;
+  primaryCta?: StrapiLink | null;
+  secondaryCta?: StrapiLink | null;
+};
+
+export type StrapiIntroBlock = {
+  __component: "block.intro";
+  id: number;
+  eyebrow?: string | null;
+  subtitle: string;
+  content?: string | null;
+  tags?: StrapiTag[];
+};
+
+export type StrapiPageBlock = StrapiHeroBlock | StrapiIntroBlock;
