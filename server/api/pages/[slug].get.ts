@@ -1,13 +1,9 @@
-import type {
-  StrapiList,
-  StrapiPageBlock,
-  StrapiPageRef,
-} from "../../types/strapi";
+import type { StrapiList, StrapiPageRef } from "../../types/strapi";
 import { fetchCMS } from "../../utils/fetch-strapi.ts";
 import { resolveLocale } from "../../utils/locale";
 import { handleStrapiError } from "../../utils/errors";
-import { mapMedia, mapLink } from "../../utils/mapper.ts";
 import { PageBlock } from "~~/server/types/blocks.ts";
+import { blockRegistry, blocksPopulate } from "~~/server/utils/blocks.ts";
 
 export type PageResponse = {
   title: string;
@@ -26,32 +22,13 @@ export default defineEventHandler(async (event): Promise<PageResponse> => {
   try {
     const response = await fetchCMS<StrapiList<StrapiPageRef>>("/pages", {
       locale,
-      filters: {
-        slug: {
-          $eq: slug,
-        },
-      },
-      populate: {
-        blocks: {
-          on: {
-            "block.hero": {
-              populate: {
-                backgroundImage: true,
-                primaryCta: { populate: ["page"] },
-                secondaryCta: { populate: ["page"] },
-              },
-            },
-            "block.intro": {
-              populate: { tags: true },
-            },
-          },
-        },
-      },
+      filters: { slug: { $eq: slug } },
+      populate: { blocks: blocksPopulate },
     });
 
     page = response.data[0];
 
-    console.log(JSON.stringify(response, null, 2));
+    // console.log(JSON.stringify(response, null, 2));
   } catch (err) {
     handleStrapiError(err, "GET /api/pages/" + slug);
   }
@@ -60,36 +37,14 @@ export default defineEventHandler(async (event): Promise<PageResponse> => {
     throw createError({ statusCode: 404, statusMessage: "Page not found" });
   }
 
-  const blocks = (page.blocks ?? [])
-    .map((block) => mapBlock(block, strapiUrl))
-    .filter((block): block is PageBlock => block !== null);
+  const blocks = (page.blocks ?? []).flatMap((block) => {
+    const def = blockRegistry[block.__component as keyof typeof blockRegistry];
+    if (!def) {
+      console.warn(`[pages] Unknown block: ${block.__component}`);
+      return [];
+    }
+    return [def.map(block, strapiUrl)];
+  });
 
   return { title: page.title, blocks };
 });
-
-function mapBlock(block: StrapiPageBlock, strapiUrl: string): PageBlock | null {
-  switch (block.__component) {
-    case "block.hero":
-      return {
-        type: "hero",
-        eyebrow: block.eyebrow,
-        headline: block.headline,
-        subheadline: block.subheadline,
-        backgroundImage: mapMedia(block.backgroundImage, strapiUrl),
-        imageCaption: block.imageCaption,
-        primaryCta: block.primaryCta ? mapLink(block.primaryCta) : null,
-        secondaryCta: block.secondaryCta ? mapLink(block.secondaryCta) : null,
-      };
-
-    case "block.intro":
-      return {
-        type: "intro",
-        eyebrow: block.eyebrow,
-        subtitle: block.subtitle,
-        content: block.content,
-        tags: (block.tags ?? []).map((t) => ({ label: t.label })),
-      };
-    default:
-      return null;
-  }
-}
