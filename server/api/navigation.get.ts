@@ -92,7 +92,7 @@ export default defineEventHandler(
       });
       headerResponse = response.data;
     } catch (err) {
-      handleStrapiError(err, "GET /api/navigation");
+      handleStrapiError(err, "GET /api/navigation/" + locale);
     }
 
     return {

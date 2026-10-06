@@ -67,6 +67,23 @@ export type StrapiHeader = {
   cta: StrapiLink;
 };
 
+// Footer
+export type StrapiFooterColumns = {
+  title: string;
+  links: StrapiLink[];
+};
+
+export type StrapiFooter = {
+  id: number;
+  logo: StrapiMedia;
+  address: string;
+  phone: string;
+  email: string;
+  columns: StrapiFooterColumns[];
+  copyright: string;
+  legalLinks: StrapiLink[];
+};
+
 // Shared
 export type StrapiTag = {
   id: number;
