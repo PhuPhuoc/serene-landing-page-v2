@@ -1,6 +1,16 @@
+import { Link, Media } from "../utils/mapper";
+
 // Shared
 export type Tag = {
   label: string;
+};
+
+export type DayMoment = {
+  label: string;
+  title: string;
+  description: string;
+  image?: Media | null;
+  cta: Link;
 };
 
 // Blocks
@@ -23,5 +33,12 @@ export type IntroBlock = {
   tags?: Tag[];
 };
 
+export type DayAt = {
+  type: "day-at";
+  eyebrow: string;
+  heading?: string | null;
+  moments: DayMoment[];
+};
+
 // Main Type
-export type PageBlock = HeroBlock | IntroBlock;
+export type PageBlock = HeroBlock | IntroBlock | DayAt;

@@ -50,27 +50,19 @@ export default defineEventHandler(
     // define var to stored data from cms strapi
     let headerResponse: StrapiHeader;
 
-    /*
-     * POPULATE OBJECT:
-     *  Strapi mặc định không trả nested relations.
-     *  Ta phải chỉ định rõ ràng những field nào cần populate (lấy đầy đủ dữ liệu).
-     */
     try {
       const response = await fetchCMS<StrapiSingle<StrapiHeader>>("/header", {
         locale,
         populate: {
           logoOnLight: true,
           logoOnDark: true,
-          // Các mục menu chính
           navItems: {
             populate: {
-              // Link của mỗi mục menu (có thể là internal hoặc external)
               link: {
                 populate: {
                   page: true,
                 },
               },
-              // Các mục con (dropdown submenu)
               children: {
                 populate: {
                   page: true,

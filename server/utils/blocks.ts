@@ -33,6 +33,29 @@ export const blockRegistry = {
       tags: (b.tags ?? []).map((t: any) => ({ label: t.label })),
     }),
   },
+
+  "block.day-at": {
+    populate: {
+      moments: {
+        populate: {
+          image: true,
+          cta: { populate: ["page"] },
+        },
+      },
+    },
+    map: (b, strapiUrl) => ({
+      type: "day-at" as const,
+      eyebrow: b.eyebrow,
+      heading: b.heading,
+      moments: (b.moments ?? []).map((t: any) => ({
+        label: t.lable,
+        title: t.title,
+        description: t.description,
+        image: t.image ? mapMedia(t.image, strapiUrl) : null,
+        cta: mapLink(t.cta),
+      })),
+    }),
+  },
 } satisfies Record<string, BlockDef<unknown>>;
 
 export const blocksPopulate = {

@@ -112,4 +112,21 @@ export type StrapiIntroBlock = {
   tags?: StrapiTag[];
 };
 
+export type StrapiDayMoment = {
+  id: number;
+  label: string;
+  title: string;
+  description: string;
+  image?: StrapiMedia | null;
+  cta: StrapiLink;
+};
+
+export type StrapiDayAt = {
+  __component: "block.day-at";
+  id: number;
+  eyebrow: string;
+  heading?: string | null;
+  moments: StrapiDayMoment[];
+};
+
 export type StrapiPageBlock = StrapiHeroBlock | StrapiIntroBlock;
