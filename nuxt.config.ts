@@ -1,8 +1,12 @@
 export default defineNuxtConfig({
   compatibilityDate: "2026-09-29",
-  devtools: { enabled: true },
+  devtools: { enabled: false },
 
   modules: ["@pinia/nuxt", "@nuxtjs/tailwindcss", "@nuxtjs/i18n"],
+
+  tailwindcss: {
+    configPath: "~~/tailwind.config.ts",
+  },
 
   i18n: {
     defaultLocale: "en",

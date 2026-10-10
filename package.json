@@ -21,6 +21,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@types/qs": "^6.15.1"
+    "@types/qs": "^6.15.1",
+    "vue-tsc": "^3.3.13"
   }
 }

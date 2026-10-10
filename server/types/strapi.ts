@@ -1,5 +1,5 @@
 // server/types/strapi.ts
-import { Locale } from "../utils/locale.ts";
+import type { Locale } from "../utils/locale.ts";
 export type StrapiSingle<T> = {
   data: T;
   meta?: Record<string, unknown>;

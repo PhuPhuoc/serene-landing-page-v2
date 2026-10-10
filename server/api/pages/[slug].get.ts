@@ -2,7 +2,7 @@ import type { StrapiList, StrapiPageRef } from "../../types/strapi";
 import { fetchCMS } from "../../utils/fetch-strapi.ts";
 import { resolveLocale } from "../../utils/locale";
 import { handleStrapiError } from "../../utils/errors";
-import { PageBlock } from "~~/server/types/blocks.ts";
+import type { PageBlock } from "../../types/blocks.ts";
 import { blockRegistry, blocksPopulate } from "~~/server/utils/blocks.ts";
 
 export type PageResponse = {
@@ -27,7 +27,6 @@ export default defineEventHandler(async (event): Promise<PageResponse> => {
     });
 
     page = response.data[0];
-
     // console.log(JSON.stringify(response, null, 2));
   } catch (err) {
     handleStrapiError(err, "GET /api/pages/" + slug);

@@ -1,4 +1,4 @@
-import { mapBackground } from "./mapper";
+import { mapBackground, mapLink, mapMedia } from "./mapper";
 
 // server/utils/blocks.ts
 type BlockDef<T> = {
@@ -85,6 +85,7 @@ export const blockRegistry = {
     },
     map: (b, strapiURL) => ({
       type: "visit" as const,
+      id: b.id,
       eyebrow: b.eyebrow,
       heading: b.heading,
       address: b.address,

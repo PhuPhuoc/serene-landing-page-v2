@@ -1,5 +1,12 @@
 // server/utils/mapper.ts
-import { BackgroundBlock, BackgroundType } from "../types/blocks";
+import {
+  type BackgroundBlock,
+  BackgroundType,
+  type Link,
+  LinkType,
+  type Media,
+  type MenuItem,
+} from "../types/blocks";
 import type {
   StrapiMedia,
   StrapiNavItem,
@@ -8,7 +15,10 @@ import type {
   StrapiBackground,
 } from "../types/strapi";
 
-// Media type
+// Re-export for convenience
+export type { Media, Link, MenuItem };
+export { LinkType };
+
 export function toAbsoluteMediaUrl(
   strapiDomainUrl: string,
   mediaUrl?: string | null,
@@ -22,13 +32,6 @@ export function toAbsoluteMediaUrl(
   }
 }
 
-export type Media = {
-  url: string;
-  alt: string;
-  width?: number;
-  height?: number;
-};
-
 export function mapMedia(media: StrapiMedia, strapiDomainUrl: string): Media {
   return {
     url: media.url ? toAbsoluteMediaUrl(strapiDomainUrl, media.url) : "",
@@ -37,22 +40,6 @@ export function mapMedia(media: StrapiMedia, strapiDomainUrl: string): Media {
     height: media.height,
   };
 }
-
-// Link ~ Navigation Link
-export enum LinkType {
-  INTERNAL = "internal",
-  EXTERNAL = "external",
-  MODAL = "modal",
-}
-
-export type Link = {
-  id: number;
-  label: string;
-  type: LinkType;
-  to?: string;
-  newTab?: boolean;
-  modalKey?: string;
-};
 
 function pageToPath(page: StrapiPageRef | null): string {
   if (!page) return "#"; // null guard: trường hợp internal link nhưng chưa gắn page
@@ -131,9 +118,6 @@ export function mapBackground(
     image: b.image ? mapMedia(b.image, strapiUrl) : null,
   };
 }
-
-// Menu's item
-export type MenuItem = Link & { children: Link[] };
 
 export function mapMenuItem(item: StrapiNavItem): MenuItem {
   return {
