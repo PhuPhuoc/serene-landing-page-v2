@@ -138,7 +138,7 @@ export type StrapiBackground = {
 
 export type StrapiImagePositon = "left" | "right";
 export type StrapiCtaVariant = "solid-dark" | "solid-light";
-export type StrapiSplitSection = {
+export type StrapiSimpleSection = {
   __component: "block.simple-section";
   id: number;
   eyebrow: string;
@@ -174,4 +174,8 @@ export type StrapiVisit = {
 };
 
 export type StrapiPageBlock =
-  StrapiHeroBlock | StrapiIntroBlock | StrapiSplitSection | StrapiVisit;
+  | StrapiHeroBlock
+  | StrapiIntroBlock
+  | StrapiDayAt
+  | StrapiSimpleSection
+  | StrapiVisit;

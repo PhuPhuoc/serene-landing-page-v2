@@ -1,4 +1,4 @@
-import { mapBackgound } from "./mapper";
+import { mapBackground } from "./mapper";
 
 // server/utils/blocks.ts
 type BlockDef<T> = {
@@ -50,7 +50,7 @@ export const blockRegistry = {
       eyebrow: b.eyebrow,
       heading: b.heading,
       moments: (b.moments ?? []).map((t: any) => ({
-        label: t.lable,
+        label: t.label,
         title: t.title,
         description: t.description,
         image: t.image ? mapMedia(t.image, strapiUrl) : null,
@@ -74,7 +74,7 @@ export const blockRegistry = {
       imagePosition: b.imagePosition,
       cta: mapLink(b.cta),
       ctaVariant: b.ctaVariant,
-      background: mapBackgound(b.background, strapiURL),
+      background: mapBackground(b.background, strapiURL),
     }),
   },
 

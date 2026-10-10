@@ -75,7 +75,7 @@ export type SimpleSection = {
 };
 
 export type Visit = {
-  type: "block.visit";
+  type: "visit";
   id: number;
   eyebrow: string;
   heading: string;

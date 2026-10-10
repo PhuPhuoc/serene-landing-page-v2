@@ -59,7 +59,7 @@ export default defineEventHandler(async (event): Promise<FooterResponse> => {
     email: footerResponse.email,
     columns: footerResponse.columns.map((column) => ({
       title: column.title,
-      links: column.links?.map((link) => mapLink(link) ?? []),
+      links: column.links?.map((link) => mapLink(link)),
     })),
     copyright: footerResponse.copyright,
     legalLinks: footerResponse.legalLinks.map((legal) => mapLink(legal)),

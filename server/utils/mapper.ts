@@ -61,7 +61,15 @@ function pageToPath(page: StrapiPageRef | null): string {
   return `/${page.locale}/${page.slug}`;
 }
 
-export function mapLink(link: StrapiLink): Link {
+export function mapLink(link: StrapiLink | null | undefined): Link {
+  if (!link) {
+    return {
+      id: -1,
+      label: "",
+      type: LinkType.INTERNAL,
+    };
+  }
+
   let type: LinkType;
   switch (link.type) {
     case "internal": {
@@ -97,7 +105,7 @@ export function mapLink(link: StrapiLink): Link {
   }
 }
 
-export function mapBackgound(
+export function mapBackground(
   b: StrapiBackground,
   strapiUrl: string,
 ): BackgroundBlock {
@@ -112,7 +120,7 @@ export function mapBackgound(
       break;
     }
     case "image": {
-      type = BackgroundType.COLOR;
+      type = BackgroundType.IMAGE;
       break;
     }
   }
