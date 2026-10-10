@@ -129,4 +129,49 @@ export type StrapiDayAt = {
   moments: StrapiDayMoment[];
 };
 
-export type StrapiPageBlock = StrapiHeroBlock | StrapiIntroBlock;
+export type StrapiBackgroundType = "default" | "color" | "image";
+export type StrapiBackground = {
+  type: StrapiBackgroundType;
+  hexColor?: string;
+  image?: StrapiMedia;
+};
+
+export type StrapiImagePositon = "left" | "right";
+export type StrapiCtaVariant = "solid-dark" | "solid-light";
+export type StrapiSplitSection = {
+  __component: "block.simple-section";
+  id: number;
+  eyebrow: string;
+  body: string;
+  image: StrapiMedia;
+  imageCaption: string;
+  imagePosition: StrapiImagePositon;
+  cta: StrapiLink;
+  ctaVariant: StrapiCtaVariant;
+  background: StrapiBackground;
+};
+
+export type StrapiVisit = {
+  __component: "block.visit";
+  id: number;
+  eyebrow: string;
+  heading: string;
+  address?: string;
+  phone?: string;
+  zaloUrl?: string;
+  email?: string;
+  note?: string;
+  directionsCta?: StrapiLink | null;
+  pinTitle?: string;
+  pinSubtitle?: string;
+  latitude?: number;
+  longitude?: number;
+  mapEmbedUrl?: string;
+  mapImage?: StrapiMedia | null;
+  newsletterText?: string;
+  emailPlaceholder?: string;
+  submitLabel?: string;
+};
+
+export type StrapiPageBlock =
+  StrapiHeroBlock | StrapiIntroBlock | StrapiSplitSection | StrapiVisit;

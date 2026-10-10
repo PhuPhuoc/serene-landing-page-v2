@@ -13,6 +13,28 @@ export type DayMoment = {
   cta: Link;
 };
 
+export enum BackgroundType {
+  DEFAULT = "default",
+  COLOR = "color",
+  IMAGE = "image",
+}
+
+export type BackgroundBlock = {
+  type: BackgroundType;
+  hexColor?: string | null;
+  image?: Media | null;
+};
+
+export enum ImagePositon {
+  LEFT = "left",
+  RIGHT = "right",
+}
+
+export enum CtaVariant {
+  SOLID_DARK = "solid-dark",
+  SOLID_LIGHT = "solid-light",
+}
+
 // Blocks
 export type HeroBlock = {
   type: "hero";
@@ -40,5 +62,39 @@ export type DayAt = {
   moments: DayMoment[];
 };
 
+export type SimpleSection = {
+  type: "simple-section";
+  eyebrow: string;
+  body: string;
+  image?: Media | null;
+  imageCaption?: string;
+  imagePosition: ImagePositon;
+  cta: Link;
+  ctaVariant: CtaVariant;
+  background: BackgroundBlock;
+};
+
+export type Visit = {
+  type: "block.visit";
+  id: number;
+  eyebrow: string;
+  heading: string;
+  address?: string;
+  phone?: string;
+  zaloUrl?: string;
+  email?: string;
+  note?: string;
+  directionsCta?: Link | null;
+  pinTitle?: string;
+  pinSubtitle?: string;
+  latitude?: number;
+  longitude?: number;
+  mapEmbedUrl?: string;
+  mapImage?: Media | null;
+  newsletterText?: string;
+  emailPlaceholder?: string;
+  submitLabel?: string;
+};
+
 // Main Type
-export type PageBlock = HeroBlock | IntroBlock | DayAt;
+export type PageBlock = HeroBlock | IntroBlock | DayAt | SimpleSection | Visit;

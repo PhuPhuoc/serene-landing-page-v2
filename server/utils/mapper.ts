@@ -1,9 +1,11 @@
 // server/utils/mapper.ts
+import { BackgroundBlock, BackgroundType } from "../types/blocks";
 import type {
   StrapiMedia,
   StrapiNavItem,
   StrapiLink,
   StrapiPageRef,
+  StrapiBackground,
 } from "../types/strapi";
 
 // Media type
@@ -29,7 +31,7 @@ export type Media = {
 
 export function mapMedia(media: StrapiMedia, strapiDomainUrl: string): Media {
   return {
-    url: toAbsoluteMediaUrl(strapiDomainUrl, media.url),
+    url: media.url ? toAbsoluteMediaUrl(strapiDomainUrl, media.url) : "",
     alt: media.alternativeText ?? "",
     width: media.width,
     height: media.height,
@@ -93,6 +95,33 @@ export function mapLink(link: StrapiLink): Link {
         type === LinkType.EXTERNAL ? (link.url ?? "#") : pageToPath(link.page),
     };
   }
+}
+
+export function mapBackgound(
+  b: StrapiBackground,
+  strapiUrl: string,
+): BackgroundBlock {
+  let type: BackgroundType;
+  switch (b.type) {
+    case "default": {
+      type = BackgroundType.DEFAULT;
+      break;
+    }
+    case "color": {
+      type = BackgroundType.COLOR;
+      break;
+    }
+    case "image": {
+      type = BackgroundType.COLOR;
+      break;
+    }
+  }
+
+  return {
+    type: type,
+    hexColor: b.hexColor,
+    image: b.image ? mapMedia(b.image, strapiUrl) : null,
+  };
 }
 
 // Menu's item
