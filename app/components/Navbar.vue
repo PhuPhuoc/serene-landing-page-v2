@@ -261,9 +261,10 @@ const linkProps = (l: MenuItem) => {
               :aria-expanded="l.children?.length ? openId === l.id : undefined"
               :aria-current="isActive(l) ? 'page' : undefined"
               :class="[
-                'flex items-center gap-1.5 py-2 text-inherit transition-colors hover:text-primary-hover',
+                'flex items-center gap-1.5 py-2 transition-colors hover:text-primary-hover',
+                isHome ? 'text-cream' : 'text-primary',
                 isActive(l) &&
-                  'relative after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:bg-current',
+                  'relative after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:bg-current font-bold',
               ]"
               @click="l.children?.length ? toggle(l.id) : undefined"
             >
@@ -539,8 +540,13 @@ const linkProps = (l: MenuItem) => {
         </ul>
       </nav>
 
-      <!-- đáy drawer: CTA nổi bật + journal + đổi ngôn ngữ -->
-      <div class="shrink-0 space-y-4 border-t border-white/10 px-6 py-6">
+      <!-- đáy drawer: CTA nổi bật + journal + đổi ngôn ngữ
+           pb cộng thêm safe-area-inset-bottom: trên máy có home indicator
+           (PWA/standalone hoặc khi bật viewport-fit=cover) CTA không bị đè.
+           Browser thường thì env() = 0 nên không đổi gì hiện tại. -->
+      <div
+        class="shrink-0 space-y-4 border-t border-white/10 px-6 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
+      >
         <div class="flex items-center justify-between gap-3 pt-2">
           <NuxtLink
             v-if="navItem.utilityLink"
