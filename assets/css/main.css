@@ -34,14 +34,14 @@
 
   /* Form elements */
   button {
-    @apply cursor-pointer font-inherit;
+    @apply cursor-pointer;
   }
 
   button:focus-visible,
   a:focus-visible,
   input:focus-visible,
   select:focus-visible {
-    @apply outline-2 outline-offset-3 outline-primary-hover;
+    @apply outline outline-2 outline-offset-2 outline-primary-hover;
   }
 
   input::placeholder,
