@@ -98,7 +98,6 @@ const pathWithoutLocale = computed(() => {
 
 // Ở home: nền trong suốt + chữ/logo sáng (vì hero ảnh tối phía sau)
 const isHome = computed(() => HOME_SLUGS.includes(pathWithoutLocale.value));
-const isLight = computed(() => !isHome.value);
 
 // Chọn logo theo nền sáng hoặc tối
 // Nền trong suốt (isHome) → dùng logo on Dark (vì hero phía sau tối)
@@ -135,10 +134,24 @@ const openPerksHover = () => {
   perksHovered.value = true;
 };
 
-// Đổi trang thì đóng drawer + dropdown
+// Cờ: bỏ qua 1 lần đóng drawer khi người dùng bấm đổi ngôn ngữ trong drawer.
+// Cần vì đổi locale có thể đổi cả slug của trang (2 bản dịch của cùng 1 document
+// trong Strapi): /en/the-club → /vi/ve-serene — vẫn là "cùng một trang" nhưng
+// không thể phân biệt chỉ bằng cách so sánh path.
+let keepDrawerOpenOnce = false;
+const markLocaleSwitch = (code: string) => {
+  if (code !== locale.value) keepDrawerOpenOnce = true;
+};
+
+// Đổi trang thì đóng drawer + dropdown.
+// Riêng khi đổi ngôn ngữ (EN ↔ VI) từ drawer thì giữ nguyên trạng thái mở.
 watch(
   () => route.path,
   () => {
+    if (keepDrawerOpenOnce) {
+      keepDrawerOpenOnce = false;
+      return;
+    }
     menuOpen.value = false;
     openId.value = null;
   },
@@ -185,7 +198,6 @@ const linkProps = (l: MenuItem) => {
   const hasChildren = l.children && l.children.length > 0 ? true : false;
   const isExternal = l.type === LinkType.EXTERNAL;
 
-  // Có menu con: không phải link, chỉ là nút để mở dropdown
   if (hasChildren) {
     return {
       to: undefined,
@@ -197,7 +209,6 @@ const linkProps = (l: MenuItem) => {
   const path = l.to ?? "#";
 
   return {
-    // Link ngoài và "#" giữ nguyên, link nội bộ thì thêm prefix ngôn ngữ
     to: isExternal ? path : path === "#" ? "#" : localePath(path),
     target: l.newTab ? "_blank" : undefined,
     rel: isExternal ? "noopener noreferrer" : undefined,
@@ -556,6 +567,7 @@ const linkProps = (l: MenuItem) => {
                     ? 'font-semibold text-cream'
                     : 'text-cream/60',
                 ]"
+                @click="markLocaleSwitch(availableLocale.code)"
               >
                 {{ availableLocale.code.toUpperCase() }}
               </NuxtLink>
