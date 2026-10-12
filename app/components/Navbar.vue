@@ -193,6 +193,18 @@ const showPerksBar = computed(
   () => !!perksItem.value && (perksHovered.value || perksActive.value),
 );
 
+// Mục cha đang chứa trang hiện tại (ví dụ đang ở Stay → Member's Perks)
+const activeParent = computed(() =>
+  navItem.value?.menuItems.find((m) => m.children?.some((c) => isActive(c))),
+);
+
+// Mở lại drawer: xổ sẵn accordion của mục cha đang chứa trang hiện tại,
+// để đi từ trang con (Stay, Wine & Dine...) quay lại vẫn thấy nhóm menu đang mở
+// thay vì phải bấm lại mục cha một lần nữa.
+watch(menuOpen, (open) => {
+  if (open && activeParent.value) openId.value = activeParent.value.id;
+});
+
 // Tạo props cho từng link trong menu
 const linkProps = (l: MenuItem) => {
   const hasChildren = l.children && l.children.length > 0 ? true : false;

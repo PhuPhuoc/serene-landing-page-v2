@@ -21,10 +21,12 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       strapiUrl: "http://localhost:1337",
+      // strapiUrl: "http://10.22.0.180:1337",
     },
 
     strapiToken: "",
     strapiUrl: "http://localhost:1337",
+    // strapiUrl: "http://10.22.0.180:1337",
   },
 
   app: {
