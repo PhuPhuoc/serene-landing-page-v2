@@ -17,6 +17,7 @@ export enum LinkType {
 
 export type Link = {
   id: number;
+  documentId: string;
   label: string;
   type: LinkType;
   to?: string;
@@ -25,7 +26,7 @@ export type Link = {
 };
 
 // Menu item
-export type MenuItem = Link & { children: Link[] };
+export type MenuItem = Link & { children?: Link[] };
 
 // Shared block types
 export type Tag = {

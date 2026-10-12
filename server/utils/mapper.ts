@@ -44,14 +44,15 @@ export function mapMedia(media: StrapiMedia, strapiDomainUrl: string): Media {
 function pageToPath(page: StrapiPageRef | null): string {
   if (!page) return "#"; // null guard: trường hợp internal link nhưng chưa gắn page
 
-  // Format: /{locale}/{slug}
-  return `/${page.locale}/${page.slug}`;
+  // return `/${page.locale}/${page.slug}`;
+  return `/${page.slug}`;
 }
 
 export function mapLink(link: StrapiLink | null | undefined): Link {
   if (!link) {
     return {
       id: -1,
+      documentId: "",
       label: "",
       type: LinkType.INTERNAL,
     };
@@ -76,6 +77,7 @@ export function mapLink(link: StrapiLink | null | undefined): Link {
   if (type === LinkType.MODAL) {
     return {
       id: link.id,
+      documentId: link.page?.documentId ?? "",
       label: link.label,
       type: type,
       modalKey: link.modalKey,
@@ -83,6 +85,7 @@ export function mapLink(link: StrapiLink | null | undefined): Link {
   } else {
     return {
       id: link.id,
+      documentId: link.page?.documentId ?? "",
       label: link.label,
       type: type,
       newTab: link.openInNewTab,

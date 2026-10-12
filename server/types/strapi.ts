@@ -28,6 +28,7 @@ export type StrapiMedia = {
 // Page
 export type StrapiPageRef = {
   id: number;
+  documentId: string;
   title: string;
   slug: string;
   locale: Locale;
