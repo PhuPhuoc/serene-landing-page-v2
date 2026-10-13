@@ -41,6 +41,14 @@ const { data: navs } = await useAsyncData(
 // Menu của ngôn ngữ đang dùng, dùng để hiển thị
 const navItem = computed(() => navs.value?.[locale.value]);
 
+// Mục menu đầu tiên có link thật (bỏ qua "#" và mục cha chỉ có children)
+const firstNavPath = computed(() => {
+  const first = navItem.value?.menuItems.find(
+    (m) => m.to && m.to !== "#" && m.type !== LinkType.EXTERNAL,
+  );
+  return first?.to; // ví dụ "/the-club" (en) hoặc "/ve-serene" (vi)
+});
+
 // Biến menu dạng cây (có children) thành danh sách phẳng để dễ tìm
 const flatten = (items: MenuItem[] = []): MenuItem[] =>
   items.flatMap((i) => [i, ...flatten((i.children as MenuItem[]) ?? [])]);
@@ -86,7 +94,7 @@ const localizedPath = (targetCode: string) => {
 // --- State & hiển thị navbar ---
 
 // Slug của các trang "home" — navbar nền trong suốt để lộ hero phía sau
-// const HOME_SLUGS = ["/", "/the-club", "/ve-serene"];
+// const HOME_SLUGS = ["/the-club", "/ve-serene"];
 const HOME_SLUGS = [""];
 
 // Bỏ prefix ngôn ngữ để so sánh giữa các locale: /vi/ve-serene => /ve-serene
@@ -95,6 +103,12 @@ const pathWithoutLocale = computed(() => {
   const stripped = route.path.replace(re, "");
   return stripped === "" ? "/" : stripped;
 });
+
+// Nếu đang ở trang gốc ("/" hoặc "/vi") thì chuyển liền sang mục đầu tiên.
+// Dùng replace: true để nút Back không bị kẹt ở trang gốc rồi redirect lại.
+if (pathWithoutLocale.value === "/" && firstNavPath.value) {
+  await navigateTo(localePath(firstNavPath.value), { replace: true });
+}
 
 // Ở home: nền trong suốt + chữ/logo sáng (vì hero ảnh tối phía sau)
 const isHome = computed(() => HOME_SLUGS.includes(pathWithoutLocale.value));
@@ -323,22 +337,18 @@ const linkProps = (l: MenuItem) => {
         </NuxtLink>
 
         <!-- đổi ngôn ngữ -->
-        <div
-          class="nav-lang"
-          aria-label="Language Switcher"
-        >
+        <div class="nav-lang" aria-label="Language Switcher">
           <template
             v-for="(availableLocale, index) in locales"
             :key="availableLocale.code"
           >
-            <span
-              v-if="index > 0"
-              class="nav-lang-sep"
-              >/</span
-            >
+            <span v-if="index > 0" class="nav-lang-sep">/</span>
             <NuxtLink
               :to="localizedPath(availableLocale.code)"
-              :class="['nav-lang-link', { 'nav-lang-link--active': locale === availableLocale.code }]"
+              :class="[
+                'nav-lang-link',
+                { 'nav-lang-link--active': locale === availableLocale.code },
+              ]"
             >
               {{ availableLocale.code.toUpperCase() }}
             </NuxtLink>
@@ -393,7 +403,10 @@ const linkProps = (l: MenuItem) => {
             <NuxtLink
               v-bind="linkProps(child)"
               :aria-current="isActive(child) ? 'page' : undefined"
-              :class="['perks-bar-link', { 'perks-bar-link--active': isActive(child) }]"
+              :class="[
+                'perks-bar-link',
+                { 'perks-bar-link--active': isActive(child) },
+              ]"
             >
               {{ child.label }}
             </NuxtLink>
@@ -451,10 +464,7 @@ const linkProps = (l: MenuItem) => {
       </div>
 
       <!-- menu chính trong drawer (cuộn nếu quá dài, footer luôn ở đáy) -->
-      <nav
-        aria-label="Main"
-        class="nav-drawer-nav"
-      >
+      <nav aria-label="Main" class="nav-drawer-nav">
         <ul>
           <li v-for="l in navItem.menuItems" :key="l.id">
             <component
@@ -465,7 +475,10 @@ const linkProps = (l: MenuItem) => {
               }"
               :aria-expanded="l.children?.length ? openId === l.id : undefined"
               :aria-current="isActive(l) ? 'page' : undefined"
-              :class="['nav-drawer-link', { 'nav-drawer-link--active': isActive(l) }]"
+              :class="[
+                'nav-drawer-link',
+                { 'nav-drawer-link--active': isActive(l) },
+              ]"
               @click="l.children?.length ? toggle(l.id) : undefined"
             >
               {{ l.label }}
@@ -477,7 +490,10 @@ const linkProps = (l: MenuItem) => {
                 stroke="currentColor"
                 stroke-width="1.5"
                 aria-hidden="true"
-                :class="['nav-drawer-caret', { 'nav-drawer-caret--open': openId === l.id }]"
+                :class="[
+                  'nav-drawer-caret',
+                  { 'nav-drawer-caret--open': openId === l.id },
+                ]"
               >
                 <path
                   stroke-linecap="round"
@@ -496,7 +512,10 @@ const linkProps = (l: MenuItem) => {
                 <NuxtLink
                   v-bind="linkProps(child)"
                   :aria-current="isActive(child) ? 'page' : undefined"
-                  :class="['nav-drawer-submenu-link', { 'nav-drawer-submenu-link--active': isActive(child) }]"
+                  :class="[
+                    'nav-drawer-submenu-link',
+                    { 'nav-drawer-submenu-link--active': isActive(child) },
+                  ]"
                 >
                   {{ child.label }}
                 </NuxtLink>
@@ -520,10 +539,7 @@ const linkProps = (l: MenuItem) => {
             {{ navItem.utilityLink.label }}
           </NuxtLink>
 
-          <div
-            class="nav-drawer-lang"
-            aria-label="Language Switcher"
-          >
+          <div class="nav-drawer-lang" aria-label="Language Switcher">
             <template
               v-for="(availableLocale, index) in locales"
               :key="availableLocale.code"
@@ -531,7 +547,13 @@ const linkProps = (l: MenuItem) => {
               <span v-if="index > 0" class="nav-drawer-lang-sep">/</span>
               <NuxtLink
                 :to="localizedPath(availableLocale.code)"
-                :class="['nav-drawer-lang-link', { 'nav-drawer-lang-link--active': locale === availableLocale.code }]"
+                :class="[
+                  'nav-drawer-lang-link',
+                  {
+                    'nav-drawer-lang-link--active':
+                      locale === availableLocale.code,
+                  },
+                ]"
                 @click="markLocaleSwitch(availableLocale.code)"
               >
                 {{ availableLocale.code.toUpperCase() }}
