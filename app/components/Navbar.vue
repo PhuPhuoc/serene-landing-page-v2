@@ -231,18 +231,14 @@ const linkProps = (l: MenuItem) => {
 <template>
   <header
     v-if="navItem"
-    :class="[
-      'sticky top-0 z-50 transition-colors duration-300',
-      isHome ? 'bg-transparent text-cream' : 'bg-cream text-dark',
-    ]"
+    class="nav-header"
+    :class="{ 'nav-header--home': isHome }"
   >
-    <div
-      class="mx-auto flex h-16 max-w-container items-center justify-between gap-6 px-4 md:h-20 md:px-8"
-    >
+    <div class="nav-inner">
       <!-- logo -->
       <NuxtLink
         :to="localePath('/')"
-        class="shrink-0"
+        class="nav-logo-link"
         aria-label="Serene Saigon"
       >
         <img
@@ -250,17 +246,17 @@ const linkProps = (l: MenuItem) => {
           :alt="logo?.alt"
           :width="logo?.width"
           :height="logo?.height"
-          class="h-9 w-auto md:h-11"
+          class="nav-logo-img"
         />
       </NuxtLink>
 
       <!-- menu chính (desktop) -->
-      <nav aria-label="Main" class="hidden lg:block">
-        <ul class="flex items-center gap-6 text-sm tracking-wide xl:gap-8">
+      <nav aria-label="Main" class="nav-menu">
+        <ul class="nav-menu-list">
           <li
             v-for="l in navItem.menuItems"
             :key="l.id"
-            class="group relative"
+            class="nav-item"
             @mouseenter="l.children?.length ? openPerksHover() : undefined"
             @mouseleave="l.children?.length ? closePerksHover() : undefined"
           >
@@ -272,12 +268,7 @@ const linkProps = (l: MenuItem) => {
               }"
               :aria-expanded="l.children?.length ? openId === l.id : undefined"
               :aria-current="isActive(l) ? 'page' : undefined"
-              :class="[
-                'flex items-center gap-1.5 py-2 transition-colors hover:text-primary-hover',
-                isHome ? 'text-cream' : 'text-primary',
-                isActive(l) &&
-                  'relative after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:bg-current font-bold',
-              ]"
+              :class="['nav-link', { 'nav-link--active': isActive(l) }]"
               @click="l.children?.length ? toggle(l.id) : undefined"
             >
               {{ l.label }}
@@ -290,11 +281,7 @@ const linkProps = (l: MenuItem) => {
                 stroke="currentColor"
                 stroke-width="1.5"
                 aria-hidden="true"
-                :class="[
-                  'h-3 w-3 transition-transform',
-                  openId === l.id && 'rotate-180',
-                  'group-hover:rotate-180',
-                ]"
+                :class="['nav-caret', { 'nav-caret--open': openId === l.id }]"
               >
                 <path
                   stroke-linecap="round"
@@ -308,19 +295,13 @@ const linkProps = (l: MenuItem) => {
                  Ẩn khi thanh bar dưới header đang hiện (tránh trùng lặp) -->
             <ul
               v-if="l.children && l.children.length > 0 && !showPerksBar"
-              :class="[
-                openId === l.id ? 'block' : 'hidden',
-                'lg:absolute lg:left-0 lg:top-full lg:block lg:min-w-[220px] lg:rounded-sm lg:bg-cream lg:py-2 lg:text-dark lg:shadow-dropdown lg:ring-1 lg:ring-dark/5',
-                'lg:invisible lg:translate-y-2 lg:opacity-0 lg:transition lg:duration-200',
-                'lg:group-hover:visible lg:group-hover:translate-y-0 lg:group-hover:opacity-100',
-                'lg:group-focus-within:visible lg:group-focus-within:translate-y-0 lg:group-focus-within:opacity-100',
-              ]"
+              class="nav-submenu"
             >
               <li v-for="child in l.children" :key="child.id">
                 <NuxtLink
                   v-bind="linkProps(child)"
                   :aria-current="isActive(child) ? 'page' : undefined"
-                  class="block px-4 py-2.5 text-sm hover:bg-warm-200 hover:text-primary"
+                  class="nav-submenu-link"
                 >
                   {{ child.label }}
                 </NuxtLink>
@@ -331,19 +312,19 @@ const linkProps = (l: MenuItem) => {
       </nav>
 
       <!-- bên phải (desktop) -->
-      <div class="hidden items-center gap-5 lg:flex xl:gap-7">
+      <div class="nav-actions">
         <!-- Journal / Tạp chí -->
         <NuxtLink
           v-if="navItem.utilityLink"
           v-bind="linkProps(navItem.utilityLink)"
-          class="text-sm tracking-wide transition-colors hover:text-primary-hover"
+          class="nav-utility-link"
         >
           {{ navItem.utilityLink.label }}
         </NuxtLink>
 
         <!-- đổi ngôn ngữ -->
         <div
-          class="flex items-center gap-1.5 text-xs tracking-widest"
+          class="nav-lang"
           aria-label="Language Switcher"
         >
           <template
@@ -352,19 +333,12 @@ const linkProps = (l: MenuItem) => {
           >
             <span
               v-if="index > 0"
-              :class="isHome ? 'text-cream/40' : 'text-muted/60'"
+              class="nav-lang-sep"
               >/</span
             >
             <NuxtLink
               :to="localizedPath(availableLocale.code)"
-              :class="[
-                'transition-colors hover:text-primary-hover',
-                locale === availableLocale.code
-                  ? 'font-semibold'
-                  : isHome
-                    ? 'text-cream/60'
-                    : 'text-muted',
-              ]"
+              :class="['nav-lang-link', { 'nav-lang-link--active': locale === availableLocale.code }]"
             >
               {{ availableLocale.code.toUpperCase() }}
             </NuxtLink>
@@ -375,12 +349,7 @@ const linkProps = (l: MenuItem) => {
         <NuxtLink
           v-if="navItem.cta"
           v-bind="linkProps(navItem.cta)"
-          :class="[
-            'border px-4 py-2 text-sm tracking-wide transition-colors xl:px-5 xl:py-2.5',
-            isHome
-              ? 'border-cream hover:bg-cream hover:text-dark'
-              : 'border-dark hover:bg-dark hover:text-cream',
-          ]"
+          class="nav-cta"
         >
           {{ navItem.cta.label }}
         </NuxtLink>
@@ -389,7 +358,7 @@ const linkProps = (l: MenuItem) => {
       <!-- nút hamburger (mobile) -->
       <button
         type="button"
-        class="grid h-10 w-10 place-items-center lg:hidden"
+        class="nav-burger"
         aria-label="Open menu"
         aria-controls="mobile-menu"
         :aria-expanded="menuOpen"
@@ -400,7 +369,7 @@ const linkProps = (l: MenuItem) => {
           fill="none"
           stroke="currentColor"
           stroke-width="1.5"
-          class="h-6 w-6"
+          class="nav-burger-icon"
           aria-hidden="true"
         >
           <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16" />
@@ -411,26 +380,20 @@ const linkProps = (l: MenuItem) => {
     <!-- thanh submenu nhỏ dưới header (chỉ desktop): Member's Perks + 4 link con -->
     <div
       v-if="showPerksBar && perksItem"
-      class="hidden border-t border-warm-300 bg-warm-100 text-dark lg:block"
+      class="perks-bar"
       @mouseenter="openPerksHover"
       @mouseleave="closePerksHover"
     >
-      <div class="mx-auto flex max-w-content items-center gap-9 px-6 xl:px-12">
-        <span
-          class="border-r border-warm-600 py-3 pr-9 text-[11px] font-medium uppercase tracking-label text-muted"
-        >
+      <div class="perks-bar-inner">
+        <span class="perks-bar-label">
           {{ perksItem.label }}
         </span>
-        <ul class="flex items-center gap-9">
+        <ul class="perks-bar-list">
           <li v-for="child in perksItem.children" :key="child.id">
             <NuxtLink
               v-bind="linkProps(child)"
               :aria-current="isActive(child) ? 'page' : undefined"
-              :class="[
-                'block py-3 text-sm tracking-wide transition-colors hover:text-primary-hover',
-                isActive(child) &&
-                  'relative font-medium after:absolute after:-bottom-px after:left-0 after:right-0 after:h-0.5 after:bg-primary',
-              ]"
+              :class="['perks-bar-link', { 'perks-bar-link--active': isActive(child) }]"
             >
               {{ child.label }}
             </NuxtLink>
@@ -443,16 +406,16 @@ const linkProps = (l: MenuItem) => {
     <div
       v-if="menuOpen"
       id="mobile-menu"
-      class="fixed inset-0 z-50 flex flex-col bg-dark text-cream lg:hidden"
+      class="nav-drawer"
       role="dialog"
       aria-modal="true"
       aria-label="Menu"
     >
       <!-- đầu drawer: logo serene dark bên trái, nút đóng bên phải -->
-      <div class="flex h-16 shrink-0 items-center justify-between px-4">
+      <div class="nav-drawer-head">
         <NuxtLink
           :to="localePath('/')"
-          class="shrink-0"
+          class="nav-logo-link"
           aria-label="Serene Saigon"
         >
           <img
@@ -461,12 +424,12 @@ const linkProps = (l: MenuItem) => {
             :alt="navItem.logoOnDark.alt"
             :width="navItem.logoOnDark.width"
             :height="navItem.logoOnDark.height"
-            class="h-9 w-auto"
+            class="nav-drawer-logo-img"
           />
         </NuxtLink>
         <button
           type="button"
-          class="grid h-10 w-10 place-items-center rounded bg-white/10 transition-colors hover:bg-white/20"
+          class="nav-drawer-close"
           aria-label="Close menu"
           @click="menuOpen = false"
         >
@@ -475,7 +438,7 @@ const linkProps = (l: MenuItem) => {
             fill="none"
             stroke="currentColor"
             stroke-width="1.5"
-            class="h-5 w-5"
+            class="nav-drawer-close-icon"
             aria-hidden="true"
           >
             <path
@@ -490,7 +453,7 @@ const linkProps = (l: MenuItem) => {
       <!-- menu chính trong drawer (cuộn nếu quá dài, footer luôn ở đáy) -->
       <nav
         aria-label="Main"
-        class="min-h-0 flex-1 overflow-y-auto border-t border-white/10"
+        class="nav-drawer-nav"
       >
         <ul>
           <li v-for="l in navItem.menuItems" :key="l.id">
@@ -502,10 +465,7 @@ const linkProps = (l: MenuItem) => {
               }"
               :aria-expanded="l.children?.length ? openId === l.id : undefined"
               :aria-current="isActive(l) ? 'page' : undefined"
-              :class="[
-                'flex w-full items-center justify-between px-6 py-4 text-base text-cream transition-colors hover:bg-white/10 hover:text-cream',
-                isActive(l) && 'bg-white/15 font-medium',
-              ]"
+              :class="['nav-drawer-link', { 'nav-drawer-link--active': isActive(l) }]"
               @click="l.children?.length ? toggle(l.id) : undefined"
             >
               {{ l.label }}
@@ -517,10 +477,7 @@ const linkProps = (l: MenuItem) => {
                 stroke="currentColor"
                 stroke-width="1.5"
                 aria-hidden="true"
-                :class="[
-                  'h-3.5 w-3.5 transition-transform',
-                  openId === l.id && 'rotate-180',
-                ]"
+                :class="['nav-drawer-caret', { 'nav-drawer-caret--open': openId === l.id }]"
               >
                 <path
                   stroke-linecap="round"
@@ -533,16 +490,13 @@ const linkProps = (l: MenuItem) => {
             <!-- menu con trong drawer -->
             <ul
               v-if="l.children && l.children.length > 0 && openId === l.id"
-              class="bg-white/5"
+              class="nav-drawer-submenu"
             >
               <li v-for="child in l.children" :key="child.id">
                 <NuxtLink
                   v-bind="linkProps(child)"
                   :aria-current="isActive(child) ? 'page' : undefined"
-                  :class="[
-                    'block py-3 pl-10 pr-6 text-sm text-cream/80 transition-colors hover:bg-white/10 hover:text-cream',
-                    isActive(child) && 'bg-white/10 text-cream',
-                  ]"
+                  :class="['nav-drawer-submenu-link', { 'nav-drawer-submenu-link--active': isActive(child) }]"
                 >
                   {{ child.label }}
                 </NuxtLink>
@@ -556,35 +510,28 @@ const linkProps = (l: MenuItem) => {
            pb cộng thêm safe-area-inset-bottom: trên máy có home indicator
            (PWA/standalone hoặc khi bật viewport-fit=cover) CTA không bị đè.
            Browser thường thì env() = 0 nên không đổi gì hiện tại. -->
-      <div
-        class="shrink-0 space-y-4 border-t border-white/10 px-6 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
-      >
-        <div class="flex items-center justify-between gap-3 pt-2">
+      <div class="nav-drawer-footer">
+        <div class="nav-drawer-toprow">
           <NuxtLink
             v-if="navItem.utilityLink"
             v-bind="linkProps(navItem.utilityLink)"
-            class="text-sm text-cream/90 transition-colors hover:text-cream"
+            class="nav-drawer-utility-link"
           >
             {{ navItem.utilityLink.label }}
           </NuxtLink>
 
           <div
-            class="flex items-center gap-1.5 text-xs tracking-widest"
+            class="nav-drawer-lang"
             aria-label="Language Switcher"
           >
             <template
               v-for="(availableLocale, index) in locales"
               :key="availableLocale.code"
             >
-              <span v-if="index > 0" class="text-cream/40">/</span>
+              <span v-if="index > 0" class="nav-drawer-lang-sep">/</span>
               <NuxtLink
                 :to="localizedPath(availableLocale.code)"
-                :class="[
-                  'transition-colors hover:text-cream',
-                  locale === availableLocale.code
-                    ? 'font-semibold text-cream'
-                    : 'text-cream/60',
-                ]"
+                :class="['nav-drawer-lang-link', { 'nav-drawer-lang-link--active': locale === availableLocale.code }]"
                 @click="markLocaleSwitch(availableLocale.code)"
               >
                 {{ availableLocale.code.toUpperCase() }}
@@ -596,7 +543,7 @@ const linkProps = (l: MenuItem) => {
         <NuxtLink
           v-if="navItem.cta"
           v-bind="linkProps(navItem.cta)"
-          class="block border border-cream bg-cream px-5 py-3 text-center text-sm font-medium tracking-wide text-dark transition-colors hover:bg-transparent hover:text-cream"
+          class="nav-drawer-cta"
         >
           {{ navItem.cta.label }}
         </NuxtLink>
@@ -604,3 +551,189 @@ const linkProps = (l: MenuItem) => {
     </div>
   </header>
 </template>
+<style scoped>
+/* === Header === */
+.nav-header {
+  @apply sticky top-0 z-50 bg-cream text-dark transition-colors duration-300;
+}
+.nav-header--home {
+  @apply bg-transparent text-cream;
+}
+.nav-inner {
+  @apply mx-auto flex h-16 max-w-container items-center justify-between gap-6 px-4 md:h-20 md:px-8;
+}
+.nav-logo-link {
+  @apply shrink-0;
+}
+.nav-logo-img {
+  @apply h-9 w-auto md:h-11;
+}
+
+/* === Menu desktop === */
+.nav-menu {
+  @apply hidden lg:block;
+}
+.nav-menu-list {
+  @apply flex items-center gap-6 text-sm tracking-wide xl:gap-8;
+}
+.nav-item {
+  @apply relative;
+}
+.nav-link {
+  @apply flex items-center gap-1.5 py-2 text-primary transition-colors hover:text-primary-hover;
+}
+.nav-header--home .nav-link {
+  @apply text-cream;
+}
+.nav-link--active {
+  @apply relative font-bold after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:bg-current;
+}
+.nav-caret {
+  @apply h-3 w-3 transition-transform;
+}
+.nav-caret--open {
+  @apply rotate-180;
+}
+.nav-item:hover .nav-caret {
+  @apply rotate-180;
+}
+.nav-submenu {
+  @apply hidden lg:absolute lg:left-0 lg:top-full lg:block lg:min-w-[220px] lg:rounded-sm lg:bg-cream lg:py-2 lg:text-dark lg:shadow-dropdown lg:ring-1 lg:ring-dark/5 lg:invisible lg:translate-y-2 lg:opacity-0 lg:transition lg:duration-200;
+}
+.nav-item:hover > .nav-submenu,
+.nav-item:focus-within > .nav-submenu {
+  @apply lg:visible lg:translate-y-0 lg:opacity-100;
+}
+.nav-submenu-link {
+  @apply block px-4 py-2.5 text-sm hover:bg-warm-200 hover:text-primary;
+}
+
+/* === Bên phải (desktop) === */
+.nav-actions {
+  @apply hidden items-center gap-5 lg:flex xl:gap-7;
+}
+.nav-utility-link {
+  @apply text-sm tracking-wide transition-colors hover:text-primary-hover;
+}
+.nav-lang {
+  @apply flex items-center gap-1.5 text-xs tracking-widest;
+}
+.nav-lang-sep {
+  @apply text-muted/60;
+}
+.nav-header--home .nav-lang-sep {
+  @apply text-cream/40;
+}
+.nav-lang-link {
+  @apply text-muted transition-colors hover:text-primary-hover;
+}
+.nav-lang-link--active {
+  @apply font-semibold text-dark;
+}
+.nav-header--home .nav-lang-link {
+  @apply text-cream/60;
+}
+.nav-header--home .nav-lang-link--active {
+  @apply text-cream;
+}
+.nav-cta {
+  @apply border border-dark px-4 py-2 text-sm tracking-wide transition-colors hover:bg-dark hover:text-cream xl:px-5 xl:py-2.5;
+}
+.nav-header--home .nav-cta {
+  @apply border-cream hover:bg-cream hover:text-dark;
+}
+
+/* === Hamburger === */
+.nav-burger {
+  @apply grid h-10 w-10 place-items-center lg:hidden;
+}
+.nav-burger-icon {
+  @apply h-6 w-6;
+}
+
+/* === Perks bar === */
+.perks-bar {
+  @apply hidden border-t border-warm-300 bg-warm-100 text-dark lg:block;
+}
+.perks-bar-inner {
+  @apply mx-auto flex max-w-content items-center gap-9 px-6 xl:px-12;
+}
+.perks-bar-label {
+  @apply border-r border-warm-600 py-3 pr-9 text-[11px] font-medium uppercase tracking-label text-muted;
+}
+.perks-bar-list {
+  @apply flex items-center gap-9;
+}
+.perks-bar-link {
+  @apply block py-3 text-sm tracking-wide transition-colors hover:text-primary-hover;
+}
+.perks-bar-link--active {
+  @apply relative font-medium after:absolute after:-bottom-px after:left-0 after:right-0 after:h-0.5 after:bg-primary;
+}
+
+/* === Drawer mobile === */
+.nav-drawer {
+  @apply fixed inset-0 z-50 flex flex-col bg-dark text-cream lg:hidden;
+}
+.nav-drawer-head {
+  @apply flex h-16 shrink-0 items-center justify-between px-4;
+}
+.nav-drawer-logo-img {
+  @apply h-9 w-auto;
+}
+.nav-drawer-close {
+  @apply grid h-10 w-10 place-items-center rounded bg-white/10 transition-colors hover:bg-white/20;
+}
+.nav-drawer-close-icon {
+  @apply h-5 w-5;
+}
+.nav-drawer-nav {
+  @apply min-h-0 flex-1 overflow-y-auto border-t border-white/10;
+}
+.nav-drawer-link {
+  @apply flex w-full items-center justify-between px-6 py-4 text-base text-cream transition-colors hover:bg-white/10 hover:text-cream;
+}
+.nav-drawer-link--active {
+  @apply bg-white/15 font-medium;
+}
+.nav-drawer-caret {
+  @apply h-3.5 w-3.5 transition-transform;
+}
+.nav-drawer-caret--open {
+  @apply rotate-180;
+}
+.nav-drawer-submenu {
+  @apply bg-white/5;
+}
+.nav-drawer-submenu-link {
+  @apply block py-3 pl-10 pr-6 text-sm text-cream/80 transition-colors hover:bg-white/10 hover:text-cream;
+}
+.nav-drawer-submenu-link--active {
+  @apply bg-white/10 text-cream;
+}
+.nav-drawer-footer {
+  @apply shrink-0 space-y-4 border-t border-white/10 px-6 pt-6;
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+}
+.nav-drawer-toprow {
+  @apply flex items-center justify-between gap-3 pt-2;
+}
+.nav-drawer-utility-link {
+  @apply text-sm text-cream/90 transition-colors hover:text-cream;
+}
+.nav-drawer-lang {
+  @apply flex items-center gap-1.5 text-xs tracking-widest;
+}
+.nav-drawer-lang-sep {
+  @apply text-cream/40;
+}
+.nav-drawer-lang-link {
+  @apply text-cream/60 transition-colors hover:text-cream;
+}
+.nav-drawer-lang-link--active {
+  @apply font-semibold text-cream;
+}
+.nav-drawer-cta {
+  @apply block border border-cream bg-cream px-5 py-3 text-center text-sm font-medium tracking-wide text-dark transition-colors hover:bg-transparent hover:text-cream;
+}
+</style>
