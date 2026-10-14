@@ -98,6 +98,7 @@ export type SimpleSection = {
   type: "simple-section";
   id: number;
   eyebrow: string;
+  heading?: string | null;
   body: string;
   image?: Media | null;
   imageCaption?: string;

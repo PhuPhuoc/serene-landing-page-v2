@@ -3,6 +3,7 @@ import Hero from "~/components/blocks/Hero.vue";
 import { type PageReponse } from "../../types";
 import Intro from "~/components/blocks/Intro.vue";
 import DayAt from "~/components/blocks/DayAt.vue";
+import Section from "~/components/blocks/Section.vue";
 const route = useRoute();
 
 const { locales, defaultLocale } = useI18n();
@@ -58,6 +59,7 @@ useSeoMeta({
       <Hero v-if="block.type === 'hero'" v-bind="block" />
       <Intro v-if="block.type === 'intro'" v-bind="block" />
       <DayAt v-if="block.type === 'day-at'" v-bind="block" />
+      <Section v-if="block.type === 'simple-section'" v-bind="block" />
     </template>
   </main>
 </template>

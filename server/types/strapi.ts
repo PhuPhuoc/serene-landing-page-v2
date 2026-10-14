@@ -143,6 +143,7 @@ export type StrapiSimpleSection = {
   __component: "block.simple-section";
   id: number;
   eyebrow: string;
+  heading: string;
   body: string;
   image: StrapiMedia;
   imageCaption: string;

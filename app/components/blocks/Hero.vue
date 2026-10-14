@@ -36,6 +36,7 @@ const linkProps = (l: Link) => {
     <p v-if="props.imageCaption" class="hero-caption">
       <span class="hero-caption-rule" aria-hidden="true" />
       {{ props.imageCaption }}
+      <span class="hero-caption-rule" aria-hidden="true" />
     </p>
 
     <div class="hero-inner">
@@ -138,7 +139,8 @@ const linkProps = (l: Link) => {
 .hero-caption {
   @apply absolute bottom-10 right-12 z-10 flex items-center gap-3 text-xs uppercase tracking-widest text-warm-600;
 }
+/* Gạch hai bên chú thích: ẩn ở mobile, chỉ còn text */
 .hero-caption-rule {
-  @apply h-px w-12 shrink-0 bg-current;
+  @apply hidden h-px w-12 shrink-0 bg-current sm:block;
 }
 </style>

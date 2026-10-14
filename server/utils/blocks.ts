@@ -73,6 +73,7 @@ export const blockRegistry = {
       type: "simple-section" as const,
       id: b.id,
       eyebrow: b.eyebrow,
+      heading: b.heading,
       body: b.body,
       image: b.image ? mapMedia(b.image, strapiURL) : null,
       imageCaption: b.imageCaption,
