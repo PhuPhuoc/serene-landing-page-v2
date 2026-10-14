@@ -31,7 +31,21 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      link: [{ rel: "icon", type: "image/jpeg", href: "/logo.jpg" }],
+      link: [
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        {
+          rel: "preconnect",
+          href: "https://fonts.gstatic.com",
+          crossorigin: "anonymous",
+        },
+        // Display serif (font-serif) + body sans (font-sans) — nạp cả subset
+        // vietnamese + latin; Afacad Flux không có trục italic.
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Afacad+Flux:wght@100..1000&display=swap",
+        },
+        { rel: "icon", type: "image/jpeg", href: "/logo.jpg" },
+      ],
     },
   },
 });

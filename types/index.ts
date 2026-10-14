@@ -34,6 +34,7 @@ export type Tag = {
 };
 
 export type DayMoment = {
+  id: number;
   label: string;
   title: string;
   description: string;
@@ -66,6 +67,7 @@ export enum CtaVariant {
 // Blocks
 export type HeroBlock = {
   type: "hero";
+  id: number;
   eyebrow?: string | null;
   headline: string;
   subheadline?: string | null;
@@ -77,6 +79,7 @@ export type HeroBlock = {
 
 export type IntroBlock = {
   type: "intro";
+  id: number;
   eyebrow?: string | null;
   subtitle: string;
   content?: string | null;
@@ -85,6 +88,7 @@ export type IntroBlock = {
 
 export type DayAt = {
   type: "day-at";
+  id: number;
   eyebrow: string;
   heading?: string | null;
   moments: DayMoment[];
@@ -92,6 +96,7 @@ export type DayAt = {
 
 export type SimpleSection = {
   type: "simple-section";
+  id: number;
   eyebrow: string;
   body: string;
   image?: Media | null;
@@ -126,3 +131,8 @@ export type Visit = {
 
 // Main Type
 export type PageBlock = HeroBlock | IntroBlock | DayAt | SimpleSection | Visit;
+
+export type PageReponse = {
+  title: string;
+  blocks: PageBlock[];
+};

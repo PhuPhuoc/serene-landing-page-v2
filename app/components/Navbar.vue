@@ -49,6 +49,9 @@ const firstNavPath = computed(() => {
   return first?.to; // ví dụ "/the-club" (en) hoặc "/ve-serene" (vi)
 });
 
+// Link của logo: về trang đầu tiên trong menu; chưa xác định được thì về "/"
+const logoTo = computed(() => localePath(firstNavPath.value ?? "/"));
+
 // Biến menu dạng cây (có children) thành danh sách phẳng để dễ tìm
 const flatten = (items: MenuItem[] = []): MenuItem[] =>
   items.flatMap((i) => [i, ...flatten((i.children as MenuItem[]) ?? [])]);
@@ -94,8 +97,8 @@ const localizedPath = (targetCode: string) => {
 // --- State & hiển thị navbar ---
 
 // Slug của các trang "home" — navbar nền trong suốt để lộ hero phía sau
-// const HOME_SLUGS = ["/the-club", "/ve-serene"];
-const HOME_SLUGS = [""];
+const HOME_SLUGS = ["/the-club", "/ve-serene"];
+// const HOME_SLUGS = [""];
 
 // Bỏ prefix ngôn ngữ để so sánh giữa các locale: /vi/ve-serene => /ve-serene
 const pathWithoutLocale = computed(() => {
@@ -110,15 +113,25 @@ if (pathWithoutLocale.value === "/" && firstNavPath.value) {
   await navigateTo(localePath(firstNavPath.value), { replace: true });
 }
 
-// Ở home: nền trong suốt + chữ/logo sáng (vì hero ảnh tối phía sau)
+// Ở home: header đè lên hero (nền trong suốt, chữ/logo sáng khi chưa cuộn)
 const isHome = computed(() => HOME_SLUGS.includes(pathWithoutLocale.value));
 
-// Chọn logo theo nền sáng hoặc tối
-// Nền trong suốt (isHome) → dùng logo on Dark (vì hero phía sau tối)
-// Nền sáng (cream) → dùng logo on Light
-const logo = computed(() => {
-  return isHome.value ? navItem.value?.logoOnDark : navItem.value?.logoOnLight;
-});
+// Mốc cuộn đổi header sang nền kem đặc (giống design drop: scrollY > 60)
+const SCROLL_THRESHOLD = 60;
+const scrolled = ref(false);
+const syncScrolled = () => {
+  scrolled.value =
+    (window.scrollY || document.documentElement.scrollTop) > SCROLL_THRESHOLD;
+};
+
+// Đang nằm trên hero: chỉ đúng ở trang home và khi chưa cuộn qua mốc
+const overHero = computed(() => isHome.value && !scrolled.value);
+
+// Chọn logo theo nền: trên hero (ảnh tối) → logoOnDark (logo màu kem),
+// nền kem đặc → logoOnLight (logo màu nâu)
+const logo = computed(() =>
+  overHero.value ? navItem.value?.logoOnDark : navItem.value?.logoOnLight,
+);
 
 // Drawer menu mobile (mobile-first): panel fullscreen nền tối
 const menuOpen = ref(false);
@@ -138,7 +151,7 @@ const closePerksHover = () => {
   perksHoverTimer = setTimeout(() => {
     perksHovered.value = false;
     perksHoverTimer = null;
-  }, 150);
+  }, 300);
 };
 const openPerksHover = () => {
   if (perksHoverTimer) {
@@ -183,8 +196,14 @@ const onKeydown = (e: KeyboardEvent) => {
     openId.value = null;
   }
 };
-onMounted(() => window.addEventListener("keydown", onKeydown));
+onMounted(() => {
+  // Vào trang khi đã cuộn sẵn (reload giữ vị trí, back/forward) → đồng bộ ngay
+  syncScrolled();
+  window.addEventListener("scroll", syncScrolled, { passive: true });
+  window.addEventListener("keydown", onKeydown);
+});
 onBeforeUnmount(() => {
+  window.removeEventListener("scroll", syncScrolled);
   window.removeEventListener("keydown", onKeydown);
   if (perksHoverTimer) clearTimeout(perksHoverTimer);
 });
@@ -246,15 +265,11 @@ const linkProps = (l: MenuItem) => {
   <header
     v-if="navItem"
     class="nav-header"
-    :class="{ 'nav-header--home': isHome }"
+    :class="{ 'nav-header--home': isHome, 'nav-header--transparent': overHero }"
   >
     <div class="nav-inner">
       <!-- logo -->
-      <NuxtLink
-        :to="localePath('/')"
-        class="nav-logo-link"
-        aria-label="Serene Saigon"
-      >
+      <NuxtLink :to="logoTo" class="nav-logo-link" aria-label="Serene Saigon">
         <img
           :src="logo?.url"
           :alt="logo?.alt"
@@ -575,14 +590,31 @@ const linkProps = (l: MenuItem) => {
 </template>
 <style scoped>
 /* === Header === */
+/* Mặc định: nền kem đặc, chữ nâu */
 .nav-header {
   @apply sticky top-0 z-50 bg-cream text-dark transition-colors duration-300;
 }
+/* Hairline dưới header: dùng ::after để không cộng 1px vào chiều cao
+   (chiều cao phải khớp đúng phần kéo nội dung lên ở .nav-header--home) */
+.nav-header::after {
+  content: "";
+  @apply pointer-events-none absolute inset-x-0 bottom-0 h-px bg-warm-600 transition-colors duration-300;
+}
+/* Trang home: kéo nội dung phía sau lên đúng chiều cao header
+   => ảnh hero nằm ngay dưới header thay vì bị đẩy xuống */
 .nav-header--home {
+  @apply -mb-16 md:-mb-20;
+}
+/* Chưa cuộn qua hero: trong suốt để lộ ảnh, chữ/logo sáng.
+   Khai báo sau .nav-header để thắng ở cùng độ ưu tiên */
+.nav-header--transparent {
   @apply bg-transparent text-cream;
 }
+.nav-header--transparent::after {
+  @apply bg-cream/[0.18];
+}
 .nav-inner {
-  @apply mx-auto flex h-16 max-w-container items-center justify-between gap-6 px-4 md:h-20 md:px-8;
+  @apply mx-auto flex h-16 max-w-container items-center justify-between gap-6 px-4 pt-2 md:h-20 md:px-8;
 }
 .nav-logo-link {
   @apply shrink-0;
@@ -604,7 +636,7 @@ const linkProps = (l: MenuItem) => {
 .nav-link {
   @apply flex items-center gap-1.5 py-2 text-primary transition-colors hover:text-primary-hover;
 }
-.nav-header--home .nav-link {
+.nav-header--transparent .nav-link {
   @apply text-cream;
 }
 .nav-link--active {
@@ -637,13 +669,17 @@ const linkProps = (l: MenuItem) => {
 .nav-utility-link {
   @apply text-sm tracking-wide transition-colors hover:text-primary-hover;
 }
+/* Trên hero: link phụ cũng dùng màu sáng (mặc định là text-primary của <a>) */
+.nav-header--transparent .nav-utility-link {
+  @apply text-cream;
+}
 .nav-lang {
   @apply flex items-center gap-1.5 text-xs tracking-widest;
 }
 .nav-lang-sep {
   @apply text-muted/60;
 }
-.nav-header--home .nav-lang-sep {
+.nav-header--transparent .nav-lang-sep {
   @apply text-cream/40;
 }
 .nav-lang-link {
@@ -652,17 +688,17 @@ const linkProps = (l: MenuItem) => {
 .nav-lang-link--active {
   @apply font-semibold text-dark;
 }
-.nav-header--home .nav-lang-link {
+.nav-header--transparent .nav-lang-link {
   @apply text-cream/60;
 }
-.nav-header--home .nav-lang-link--active {
+.nav-header--transparent .nav-lang-link--active {
   @apply text-cream;
 }
 .nav-cta {
   @apply border border-dark px-4 py-2 text-sm tracking-wide transition-colors hover:bg-dark hover:text-cream xl:px-5 xl:py-2.5;
 }
-.nav-header--home .nav-cta {
-  @apply border-cream hover:bg-cream hover:text-dark;
+.nav-header--transparent .nav-cta {
+  @apply border-cream text-cream hover:bg-cream hover:text-dark;
 }
 
 /* === Hamburger === */
@@ -677,11 +713,16 @@ const linkProps = (l: MenuItem) => {
 .perks-bar {
   @apply hidden border-t border-warm-300 bg-warm-100 text-dark lg:block;
 }
+/* Trang home: thanh perks nổi ngay dưới header (đè lên hero) thay vì cộng
+   47px vào chiều cao header — nếu không hero sẽ bị đẩy xuống khi hover */
+.nav-header--home .perks-bar {
+  @apply absolute inset-x-0 top-full;
+}
 .perks-bar-inner {
   @apply mx-auto flex max-w-content items-center gap-9 px-6 xl:px-12;
 }
 .perks-bar-label {
-  @apply border-r border-warm-600 py-3 pr-9 text-[11px] font-medium uppercase tracking-label text-muted;
+  @apply border-r border-warm-600 py-3 pr-9 text-[13px] font-medium uppercase tracking-label text-muted;
 }
 .perks-bar-list {
   @apply flex items-center gap-9;

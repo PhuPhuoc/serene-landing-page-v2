@@ -8,7 +8,37 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Afacad Flux", "Avenir Next", "Segoe UI", "sans-serif"],
-        serif: ["Jost", "Futura", "Century Gothic", "sans-serif"],
+        // Display: Cormorant Garamond — serif Garamond cổ điển, có subset
+        // Vietnamese (đủ dấu) + latin, nên hiển thị đẹp cho cả EN lẫn VI.
+        // Biến thể 300–700 kèm italic cho tiêu đề lớn / eyebrow chữ nghiêng.
+        serif: [
+          "Cormorant Garamond",
+          "EB Garamond",
+          "Garamond",
+          "Times New Roman",
+          "serif",
+        ],
+      },
+      // Thang chữ gốc của Tailwind được đẩy lên +2px cho mọi bậc
+      // (12→14, 14→16, 16→18, 20→22…) vì bản dựng theo design drop hơi nhỏ.
+      // Cặp line-height cũng +2px để giữ đúng nhịp dòng của design; các bậc
+      // 5xl trở lên dùng line-height 1 như mặc định. Muốn đổi mức tăng
+      // (ví dụ +3px) thì chỉ sửa khối này — các `text-*` dùng giá trị tuỳ ý
+      // trong component (`text-[15px]`, clamp…) phải chỉnh tay tương ứng.
+      fontSize: {
+        xs: ["0.875rem", { lineHeight: "1.125rem" }], // 14 / 18
+        sm: ["1rem", { lineHeight: "1.375rem" }], // 16 / 22
+        base: ["1.125rem", { lineHeight: "1.625rem" }], // 18 / 26
+        lg: ["1.25rem", { lineHeight: "1.875rem" }], // 20 / 30
+        xl: ["1.375rem", { lineHeight: "1.875rem" }], // 22 / 30
+        "2xl": ["1.625rem", { lineHeight: "2.125rem" }], // 26 / 34
+        "3xl": ["2rem", { lineHeight: "2.375rem" }], // 32 / 38
+        "4xl": ["2.375rem", { lineHeight: "2.625rem" }], // 38 / 42
+        "5xl": ["3.125rem", { lineHeight: "1" }], // 50
+        "6xl": ["3.875rem", { lineHeight: "1" }], // 62
+        "7xl": ["4.625rem", { lineHeight: "1" }], // 74
+        "8xl": ["6.125rem", { lineHeight: "1" }], // 98
+        "9xl": ["8.125rem", { lineHeight: "1" }], // 130
       },
       colors: {
         // Main palette

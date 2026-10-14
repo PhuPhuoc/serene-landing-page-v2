@@ -45,7 +45,7 @@ Invariants to preserve:
 | `server/types/` | `strapi.ts` = wire types (`Strapi*`, one per `__component`); `blocks.ts` = legacy shim re-exporting `../../types`. |
 | `types/index.ts` | **Canonical shared client + server models** (`~~/types`). Root level — not `app/`, not Nuxt's `shared/`. |
 | `assets/css/main.css` | Tailwind entry plus `@layer base` / `@layer utilities`. Root-level `assets/`, **not** `app/assets/`. |
-| `tailwind.config.ts` | Design tokens: `cream`, `dark`, `primary`, `primary-hover`, `muted`, `warm-50…900`, `error*`, `max-w-container/content`, `tracking-label`, `shadow-card/dropdown/modal`, `animate-fade-in`. |
+| `tailwind.config.ts` | Design tokens: `cream`, `dark`, `primary`, `primary-hover`, `muted`, `warm-50…900`, `error*`, `max-w-container/content`, `tracking-label`, `shadow-card/dropdown/modal`, `animate-fade-in`, plus a `fontSize` scale shifted **+2px** from Tailwind's defaults. |
 | `public/` | `favicon.ico`, `logo.jpg` (referenced as the head icon in `nuxt.config.ts`), `robots.txt`. |
 | `docs/type.md` | Vietnamese TypeScript tutorial, unrelated to this app's API — not project documentation. |
 | `temp/` | Gitignored raw design drop (`Serene Saigon.dc.html`); not built. |
@@ -138,7 +138,10 @@ const linkProps = (l: Link) =>
 - `mapMedia(media, strapiUrl)` absolutizes relative Strapi URLs and defaults `alt` to `""`; render `width`/`height` when present.
 - Prefer tokens over raw values: `bg-cream text-dark`, `text-primary` / `bg-primary-hover`, `font-sans`/`font-serif`, `max-w-container`, `tracking-label`, `shadow-card`, `class="fade"`.
 - `letterSpacing.wide|wider|widest` are **overridden** with custom values — don't assume Tailwind defaults.
-- Fonts `"Afacad Flux"` / `"Jost"` are declared in `tailwind.config.ts` and `main.css` but never loaded (no `@font-face`, no font module), so they currently fall back to the system stack.
+- `fontSize` **overrides every step** of Tailwind's scale at design px **+2px** (`xs` 12→14, `sm` 14→16, `base` 16→18, `xl` 20→22, `5xl` 48→50 …), with paired line-heights +2px too. So `text-sm` is 16px, not 14px; arbitrary values (`text-[15px]`, `text-[clamp(…)]`) are not covered and were bumped by hand (now `text-[13px]` for the perks-bar label, `text-[17px]` for hero CTAs, `clamp(2.875rem,5vw,4.875rem)` for the hero headline). Change the increment in the single `fontSize` block of `tailwind.config.ts`, then restart `bun dev` — the running dev server caches the resolved theme. Intentionally deviates from `temp/Serene Saigon.dc.html`'s px values (verified: 76px → 78px hero display).
+- Both webfonts load from Google Fonts via the `app.head.link` entries in `nuxt.config.ts` (2 `preconnect` + 1 stylesheet request for both families), each shipping the `latin` + `latin-ext` + `vietnamese` subsets so EN/VI diacritics render in the real face:
+  - `font-serif` (display, `h1–h3` via `@apply font-serif font-normal` in `main.css`) = **Cormorant Garamond**, variable 300–700 + italic. Base weight is **400**, not 300: at 16–24px Cormorant Light reads as washed-out hairline; large display headings opt into `font-light` per component.
+  - `font-sans` (body via `@apply … font-sans`) = **Afacad Flux** 100–1000; it has **no italic axis**, so italic sans text is browser-synthesized.
 
 ### Known rough edges
 
@@ -153,7 +156,7 @@ const linkProps = (l: Link) =>
 | File | Why it matters |
 |---|---|
 | `app/pages/[...slug].vue` | **Only route and still an unimplemented placeholder** (`<h1>hi</h1>` ×21). Replacing it with a real renderer for `/api/pages/:slug` blocks is the outstanding work. Every catch-all URL lands here; there is no `index.vue`, so `/` 302s to `/en` and renders the layout alone. |
-| `app/components/Navbar.vue` (739 lines) | Largest file; owns locale switching, mobile drawer state, dropdown + flattened-menu logic. Read before touching navigation. |
+| `app/components/Navbar.vue` (739 lines) | Largest file; owns locale switching, mobile drawer state, dropdown + flattened-menu logic, and the two header states (see below). Read before touching navigation. |
 | `app/components/Footer.vue` | Reference implementation of the all-locales fetch pattern and link rendering. |
 | `server/utils/blocks.ts` | Block registry + generated `blocksPopulate` — the extension point for page content. |
 | `server/utils/mapper.ts` | All wire → client translation. Add field mappings here, never in components. |
@@ -164,6 +167,22 @@ const linkProps = (l: Link) =>
 | `.nuxt/tsconfig.*` | Generated project references: `~`/`@` → `app/`, `~~`/`@@` → repo root, `strict: true`. |
 | `.env` (gitignored) | `NUXT_STRAPI_TOKEN` → `runtimeConfig.strapiToken`. |
 | `CLAUDE.md` (gitignored) | Local-only assistant notes that already describe these patterns. |
+
+### Header states on the two "home" slugs
+
+`HOME_SLUGS = ["/the-club", "/ve-serene"]` decides the header look, keyed off `pathWithoutLocale`:
+
+| | on a home slug, `scrollY <= 60` | everywhere else (and home once scrolled) |
+|---|---|---|
+| class | `nav-header--home nav-header--transparent` | `nav-header--home` / bare |
+| bg + text | transparent, `text-cream` | `bg-cream`, `text-dark` |
+| logo (`logo` computed) | `logoOnDark` (cream SVG) | `logoOnLight` (brown SVG) |
+| 1px hairline (`::after`, not `border`) | `bg-cream/[0.18]` | `bg-warm-600` |
+
+- `overHero = isHome && !scrolled` is the single source of truth for both the class and the logo; `scrolled` is a `scrollY > 60` listener (design-drop threshold) synced once in `onMounted` so reloads/back-forward at an offset don't flash the wrong state.
+- `.nav-header--home` pulls the next sibling up by the header's height (`-mb-16 md:-mb-20` ↔ `h-16 md:h-20`) so the hero starts *behind* the header. Change either height and you MUST change the other; keep the hairline on `::after` for the same reason (a real `border` adds 1px and the hero would sit 1px low).
+- `.nav-header--home .perks-bar` is `absolute top-full` — the perks bar would otherwise add 47px and shove the hero down on hover.
+- The design drop uses a `position: fixed` header at 96px/76px with a 300ms height transition (`temp/Serene Saigon.dc.html` line 34 + `hdr` in `renderVals`); the app deliberately keeps its own responsive 64/80px heights and no height animation. Strapi supplies both logos: `logoOnLight` = brown `#795B3C`, `logoOnDark` = cream `#F2E9DA`.
 
 ## Runtime/Tooling Preferences
 

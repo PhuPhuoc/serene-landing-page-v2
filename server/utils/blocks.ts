@@ -15,6 +15,7 @@ export const blockRegistry = {
     },
     map: (b, strapiUrl) => ({
       type: "hero" as const,
+      id: b.id,
       eyebrow: b.eyebrow,
       headline: b.headline,
       subheadline: b.subheadline,
@@ -29,6 +30,7 @@ export const blockRegistry = {
     populate: { tags: true },
     map: (b) => ({
       type: "intro" as const,
+      id: b.id,
       eyebrow: b.eyebrow,
       subtitle: b.subtitle,
       content: b.content,
@@ -47,9 +49,11 @@ export const blockRegistry = {
     },
     map: (b, strapiUrl) => ({
       type: "day-at" as const,
+      id: b.id,
       eyebrow: b.eyebrow,
       heading: b.heading,
       moments: (b.moments ?? []).map((t: any) => ({
+        id: t.id,
         label: t.label,
         title: t.title,
         description: t.description,
@@ -67,6 +71,7 @@ export const blockRegistry = {
     },
     map: (b, strapiURL) => ({
       type: "simple-section" as const,
+      id: b.id,
       eyebrow: b.eyebrow,
       body: b.body,
       image: b.image ? mapMedia(b.image, strapiURL) : null,

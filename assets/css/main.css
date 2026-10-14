@@ -8,15 +8,13 @@
   }
 
   body {
-    @apply bg-cream text-dark;
-    font-family: "Afacad Flux", "Avenir Next", "Segoe UI", sans-serif;
+    @apply bg-cream text-dark font-sans;
   }
 
   h1,
   h2,
   h3 {
-    font-family: "Jost", "Futura", "Century Gothic", sans-serif;
-    @apply font-light;
+    @apply font-serif font-medium;
     text-wrap: balance;
   }
 
