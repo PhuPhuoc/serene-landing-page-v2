@@ -65,7 +65,7 @@ export enum CtaVariant {
 }
 
 // Blocks
-export type HeroBlock = {
+export type Hero = {
   type: "hero";
   id: number;
   eyebrow?: string | null;
@@ -77,7 +77,7 @@ export type HeroBlock = {
   secondaryCta?: Link | null;
 };
 
-export type IntroBlock = {
+export type Intro = {
   type: "intro";
   id: number;
   eyebrow?: string | null;
@@ -131,7 +131,7 @@ export type Visit = {
 };
 
 // Main Type
-export type PageBlock = HeroBlock | IntroBlock | DayAt | SimpleSection | Visit;
+export type PageBlock = Hero | Intro | DayAt | SimpleSection | Visit;
 
 export type PageReponse = {
   title: string;

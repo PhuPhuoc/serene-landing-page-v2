@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { type IntroBlock } from "../../../types";
+import { type Intro } from "../../../types";
 
-const props = defineProps<Partial<IntroBlock>>();
+const props = defineProps<Partial<Intro>>();
 </script>
 
 <template>

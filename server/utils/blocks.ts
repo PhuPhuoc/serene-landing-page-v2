@@ -67,7 +67,8 @@ export const blockRegistry = {
     populate: {
       image: true,
       cta: { populate: ["page"] },
-      background: true,
+      // background: true,
+      background: { populate: { image: true } },
     },
     map: (b, strapiURL) => ({
       type: "simple-section" as const,

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { LinkType, type HeroBlock } from "../../../types";
+import { LinkType, type Hero } from "../../../types";
 
 const localePath = useLocalePath();
-const props = defineProps<Partial<HeroBlock>>();
+const props = defineProps<Partial<Hero>>();
 
 const linkProps = (l: Link) => {
   const isExternal = l.type === LinkType.EXTERNAL;
@@ -90,7 +90,8 @@ const linkProps = (l: Link) => {
 /* Tối dần sang phải (cột chữ) + tối nhẹ ở đáy (chú thích ảnh) */
 .hero-scrim {
   @apply pointer-events-none absolute inset-0;
-  background-image: linear-gradient(
+  background-image:
+    linear-gradient(
       90deg,
       rgb(34 25 18 / 0.78) 0%,
       rgb(34 25 18 / 0.42) 42%,

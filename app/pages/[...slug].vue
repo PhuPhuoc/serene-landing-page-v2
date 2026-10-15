@@ -4,6 +4,7 @@ import { type PageReponse } from "../../types";
 import Intro from "~/components/blocks/Intro.vue";
 import DayAt from "~/components/blocks/DayAt.vue";
 import Section from "~/components/blocks/Section.vue";
+import Visit from "~/components/blocks/Visit.vue";
 const route = useRoute();
 
 const { locales, defaultLocale } = useI18n();
@@ -60,6 +61,7 @@ useSeoMeta({
       <Intro v-if="block.type === 'intro'" v-bind="block" />
       <DayAt v-if="block.type === 'day-at'" v-bind="block" />
       <Section v-if="block.type === 'simple-section'" v-bind="block" />
+      <Visit v-if="block.type === 'visit'" v-bind="block" />
     </template>
   </main>
 </template>
