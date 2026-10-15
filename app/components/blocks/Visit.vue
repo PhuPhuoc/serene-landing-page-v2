@@ -1,24 +1,12 @@
 <script setup lang="ts">
-import { LinkType, type Link, type Visit } from "../../../types";
+import { LinkType, type Visit } from "../../../types";
 
-const localePath = useLocalePath();
 const props = defineProps<Partial<Visit>>();
 
 // Lấy component NuxtLink thật để dùng cho <component :is="...">
 const NuxtLinkComp = resolveComponent("NuxtLink");
 
-const linkProps = (l: Link) => {
-  const isExternal = l.type === LinkType.EXTERNAL;
-  const path = l.to ?? "#";
-  if (isExternal) {
-    return {
-      href: path,
-      target: l.newTab ? "_blank" : undefined,
-      rel: "noopener noreferrer",
-    };
-  }
-  return { to: path === "#" ? "#" : localePath(path) };
-};
+const linkProps = useLinkProps();
 
 // Toạ độ CMS → "10.75,106.73": dùng cho bản đồ / nút chỉ đường khi Strapi
 // chưa nhập sẵn link, tránh để component phụ thuộc vào mapEmbedUrl

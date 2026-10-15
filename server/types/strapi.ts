@@ -92,7 +92,7 @@ export type StrapiTag = {
 };
 
 // Blocks:
-export type StrapiHeroBlock = {
+export type StrapiHero = {
   __component: "block.hero";
   id: number;
   eyebrow?: string | null;
@@ -104,7 +104,7 @@ export type StrapiHeroBlock = {
   secondaryCta?: StrapiLink | null;
 };
 
-export type StrapiIntroBlock = {
+export type StrapiIntro = {
   __component: "block.intro";
   id: number;
   eyebrow?: string | null;
@@ -175,9 +175,48 @@ export type StrapiVisit = {
   submitLabel?: string;
 };
 
+export type StrapiFeature = {
+  id: number;
+  title: string;
+  description?: string;
+};
+export type StrapiMembership = {
+  __component: "block.membership";
+  id: number;
+  eyebrow: string;
+  heading: string;
+  description?: string;
+  primaryCta: StrapiLink;
+  secondaryCta: StrapiLink;
+  features: StrapiFeature[];
+  background: StrapiBackground;
+};
+
+export type StrapiPricingTier = {
+  id: number;
+  name: string;
+  price: string; // biginteger: Strapi serialize thành string
+  priceLabel: string;
+  description?: string | null;
+  period?: string | null;
+};
+export type StrapiTier = {
+  __component: "block.tier";
+  id: number;
+  eyebrow: string;
+  heading: string;
+  note?: string | null;
+  primaryCta?: StrapiLink | null;
+  secondaryCta?: StrapiLink | null;
+  tiers?: StrapiPricingTier[];
+  background?: StrapiBackground | null;
+};
+
 export type StrapiPageBlock =
-  | StrapiHeroBlock
-  | StrapiIntroBlock
+  | StrapiHero
+  | StrapiIntro
   | StrapiDayAt
   | StrapiSimpleSection
-  | StrapiVisit;
+  | StrapiVisit
+  | StrapiMembership
+  | StrapiTier;

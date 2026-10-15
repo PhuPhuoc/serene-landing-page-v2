@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { LinkType, type DayAt, type Link } from "../../../types";
+import { type DayAt } from "../../../types";
 
 const props = defineProps<Partial<DayAt>>();
-const localePath = useLocalePath();
+const linkProps = useLinkProps();
 
 // Id duy nhất cho cặp tab / tabpanel (tránh trùng khi 2 block cùng nằm 1 trang)
 const uid = useId();
@@ -12,19 +12,6 @@ const uid = useId();
 const activeIndex = ref(0);
 const moments = computed(() => props.moments ?? []);
 const active = computed(() => moments.value[activeIndex.value] ?? null);
-
-const linkProps = (l: Link) => {
-  const isExternal = l.type === LinkType.EXTERNAL;
-  const path = l.to ?? "#";
-  if (isExternal) {
-    return {
-      href: path,
-      target: l.newTab ? "_blank" : undefined,
-      rel: "noopener noreferrer",
-    };
-  }
-  return { to: path === "#" ? "#" : localePath(path) };
-};
 </script>
 
 <template>

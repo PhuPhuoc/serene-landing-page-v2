@@ -10,7 +10,7 @@ export {
   type Tag,
   type DayMoment,
   BackgroundType,
-  type BackgroundBlock,
+  type Background,
   ImagePositon,
   CtaVariant,
   type Hero,

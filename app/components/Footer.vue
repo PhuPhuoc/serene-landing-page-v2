@@ -26,18 +26,7 @@ const NuxtLinkComp = resolveComponent("NuxtLink");
 const linkTag = (l: Link) =>
   l.type === LinkType.EXTERNAL ? "a" : NuxtLinkComp;
 
-const linkProps = (l: Link) => {
-  const isExternal = l.type === LinkType.EXTERNAL;
-  const path = l.to ?? "#";
-  if (isExternal) {
-    return {
-      href: path,
-      target: l.newTab ? "_blank" : undefined,
-      rel: "noopener noreferrer",
-    };
-  }
-  return { to: path === "#" ? "#" : localePath(path) };
-};
+const linkProps = useLinkProps();
 </script>
 
 <template>

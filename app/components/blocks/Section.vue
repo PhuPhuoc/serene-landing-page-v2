@@ -1,65 +1,16 @@
 <script setup lang="ts">
-import {
-  BackgroundType,
-  CtaVariant,
-  ImagePositon,
-  LinkType,
-  type Link,
-  type SimpleSection,
-} from "../../../types";
+import BlockBackground from "~/components/blocks/BlockBackground.vue";
+import { CtaVariant, ImagePositon, type SimpleSection } from "../../../types";
 
-const localePath = useLocalePath();
 const props = defineProps<Partial<SimpleSection>>();
+const linkProps = useLinkProps();
 
-const linkProps = (l: Link) => {
-  const isExternal = l.type === LinkType.EXTERNAL;
-  const path = l.to ?? "#";
-  if (isExternal) {
-    return {
-      href: path,
-      target: l.newTab ? "_blank" : undefined,
-      rel: "noopener noreferrer",
-    };
-  }
-  return { to: path === "#" ? "#" : localePath(path) };
-};
-
-// === Nền: 3 dạng default | color | image ===
-const bgType = computed(() => props.background?.type ?? BackgroundType.DEFAULT);
-const hexColor = computed(() => props.background?.hexColor ?? null);
-// Ảnh nền chỉ tính khi CMS thật sự có file, nếu không phải rơi về nền mặc định
-const bgImage = computed(() => {
-  const img = props.background?.image ?? null;
-  return bgType.value === BackgroundType.IMAGE && img?.url ? img : null;
-});
-
-// Nền màu do CMS nhập tự do nên chữ sáng/tối phải suy từ độ sáng tương đối
-// (WCAG): #795B3C → chữ kem, #E8DAC4 → chữ nâu.
-function isDarkColor(hex: string): boolean {
-  if (!/^#[0-9a-f]{6}$/i.test(hex)) return false;
-  const channel = (i: number) => {
-    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
-    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-  };
-  return (
-    0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5) < 0.45
-  );
-}
-
-// Nền tối (ảnh hoặc màu đậm) → chữ kem; nền mặc định/màu nhạt → chữ nâu đậm
-const onDark = computed(
-  () =>
-    !!bgImage.value ||
-    (bgType.value === BackgroundType.COLOR &&
-      !!hexColor.value &&
-      isDarkColor(hexColor.value)),
-);
-
-const sectionStyle = computed(() =>
-  bgType.value === BackgroundType.COLOR && hexColor.value
-    ? { backgroundColor: hexColor.value }
-    : undefined,
-);
+// === Nền: 3 dạng default | color | image (logic dùng chung: useBackground) ===
+const {
+  image: bgImage,
+  onDark,
+  style: sectionStyle,
+} = useBackground(() => props.background);
 
 // imagePosition quyết định bên nào giữ ảnh; mobile xếp theo đúng thứ tự đó
 const imageRight = computed(() => props.imagePosition === ImagePositon.RIGHT);
@@ -78,14 +29,10 @@ const ctaClass = computed(() =>
     :style="sectionStyle"
   >
     <!-- Nền ảnh: full-bleed + lớp phủ tối dần về phía cột chữ (cùng lối với Hero) -->
-    <template v-if="bgImage">
-      <img class="section-bg" :src="bgImage.url" :alt="bgImage.alt" />
-      <div
-        class="section-scrim"
-        :class="{ 'section-scrim--reverse': imageRight }"
-        aria-hidden="true"
-      />
-    </template>
+    <BlockBackground
+      :image="bgImage"
+      :dark-side="imageRight ? 'left' : 'right'"
+    />
 
     <div class="section-inner">
       <!-- Ảnh minh hoạ: 6 cột (trái/phải tuỳ imagePosition), chữ ở 5 cột đối diện -->
@@ -184,33 +131,6 @@ const ctaClass = computed(() =>
 /* Nền tối: màu đậm (CMS) hoặc ảnh — bg-dark là lúc ảnh chưa tải xong */
 .section--dark {
   @apply bg-dark text-cream;
-}
-.section-bg {
-  @apply absolute inset-0 h-full w-full object-cover;
-}
-/* Mobile: tối đều vì chữ nằm dưới ảnh; từ lg: tối dần về phía cột chữ (như Hero) */
-.section-scrim {
-  @apply pointer-events-none absolute inset-0 bg-dark/55;
-}
-@media (min-width: 1024px) {
-  .section-scrim {
-    @apply bg-transparent;
-    background-image: linear-gradient(
-      90deg,
-      rgb(34 25 18 / 0.05) 0%,
-      rgb(34 25 18 / 0.42) 55%,
-      rgb(34 25 18 / 0.78) 100%
-    );
-  }
-  /* Ảnh bên phải ⇒ cột chữ bên trái ⇒ đảo hướng gradient */
-  .section-scrim--reverse {
-    background-image: linear-gradient(
-      270deg,
-      rgb(34 25 18 / 0.05) 0%,
-      rgb(34 25 18 / 0.42) 55%,
-      rgb(34 25 18 / 0.78) 100%
-    );
-  }
 }
 .section-inner {
   @apply relative z-10 mx-auto flex w-full max-w-content flex-col gap-y-10 px-6 sm:px-10 lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-8 xl:px-16;

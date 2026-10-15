@@ -1,6 +1,6 @@
 // server/utils/mapper.ts
 import {
-  type BackgroundBlock,
+  type Background,
   BackgroundType,
   type Link,
   LinkType,
@@ -96,9 +96,12 @@ export function mapLink(link: StrapiLink | null | undefined): Link {
 }
 
 export function mapBackground(
-  b: StrapiBackground,
+  b: StrapiBackground | null | undefined,
   strapiUrl: string,
-): BackgroundBlock {
+): Background | null {
+  // `background` không bắt buộc trong Strapi nên có thể vắng/null.
+  if (!b) return null;
+
   let type: BackgroundType;
   switch (b.type) {
     case "default": {

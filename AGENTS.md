@@ -39,7 +39,8 @@ Invariants to preserve:
 
 | Path | Purpose |
 |---|---|
-| `app/` | Vue UI (`~` / `@` alias → `app/`). `pages/[...slug].vue` is the only route, `layouts/default.vue` is Navbar + slot + Footer, components in `app/components/`. No `composables/`, `stores/`, `plugins/`, `middleware/`, or `app/assets/`. |
+| `app/` | Vue UI (`~` / `@` alias → `app/`). `pages/[...slug].vue` is the only route, `layouts/default.vue` is Navbar + slot + Footer, components in `app/components/`. No `stores/`, `plugins/`, `middleware/`, or `app/assets/`. |
+| `app/composables/` | Auto-imported helpers shared by every block: `useLinkProps()` (CMS `Link` → `NuxtLink`/`<a>` props, interior targets through `localePath`), `useBackground()` (`background` default/color/image → `{ style, image, onDark }`, WCAG-based light/dark text tone, `defaultOnDark` for blocks whose default look is a dark panel). |
 | `server/api/` | Nitro BFF: `navigation.get.ts`, `footer.get.ts`, `pages/[slug].get.ts` (single segment — `/api/pages/a/b` is 404). |
 | `server/utils/` | `fetch-strapi.ts` (`fetchCMS`), `locale.ts` (`resolveLocale`, `SUPPORTED_LOCALES`), `mapper.ts` (media/link/background/menu-item mappers, `LinkType` re-export), `blocks.ts` (`blockRegistry`, `blocksPopulate`), `errors.ts`. |
 | `server/types/` | `strapi.ts` = wire types (`Strapi*`, one per `__component`); `blocks.ts` = legacy shim re-exporting `../../types`. |
@@ -121,17 +122,22 @@ export default defineEventHandler(async (event): Promise<XResponse> => {
 
 ### Rendering links
 
-`mapLink` normalizes everything to `Link`, but `pageToPath()` returns `/{slug}` **without** a locale prefix (the prefixed form is commented out), and a missing page yields `to: "#"`. Components therefore branch on `LinkType` and push interior targets through `localePath()`:
+`mapLink` normalizes everything to `Link`, but `pageToPath()` returns `/{slug}` **without** a locale prefix (the prefixed form is commented out), and a missing page yields `to: "#"`. Components therefore branch on `LinkType` and push interior targets through `localePath()` — that logic lives once in `app/composables/useLinkProps.ts`:
 
 ```ts
-const linkTag = (l: Link) => (l.type === LinkType.EXTERNAL ? "a" : NuxtLinkComp);
-const linkProps = (l: Link) =>
-  l.type === LinkType.EXTERNAL
-    ? { href: l.to ?? "#", target: l.newTab ? "_blank" : undefined, rel: "noopener noreferrer" }
-    : { to: (l.to ?? "#") === "#" ? "#" : localePath(l.to!) };
+const linkProps = useLinkProps(); // (l: Link | null | undefined)
+// EXTERNAL → { href, target, rel }; nội bộ → { to: localePath(l.to) } ("#" giữ nguyên)
 ```
 
-`Navbar.vue` additionally flattens the per-locale menu index (`flatten` + `documentId` matching) and uses `useSwitchLocalePath()` to find a page's counterpart in the other language.
+`Navbar.vue` keeps its own menu-specific variant (children ⇒ `role="button"`), and additionally flattens the per-locale menu index (`flatten` + `documentId` matching) and uses `useSwitchLocalePath()` to find a page's counterpart in the other language.
+
+### Block `background` (default | color | image)
+
+Every content block receives the same `background` object; the logic is shared, not duplicated per component:
+
+- `useBackground(() => props.background, { defaultOnDark })` → `{ image, onDark, style }`. It only treats `image` as a background when `type === "image"` **and** the CMS media has a `url`, derives the text tone from WCAG relative luminance for `color`, and `defaultOnDark` marks blocks whose default look is already a dark panel (membership = `bg-primary`). Blocks then switch their own tone classes (`membership--dark|light`, `section--dark|light`, `tier--dark|light`).
+- `<BlockBackground :image :dark-side="left|right" />` renders the full-bleed `<img>` + the legibility scrim (flat `bg-dark/55` on mobile, horizontal gradient from `lg`); `dark-side` is the side where the text column sits. Blocks keep `relative overflow-hidden` on their root.
+- CTA styling is intentionally **not** abstracted: each block owns its variants (`ctaVariant` only exists on `simple-section`, and membership/tier use bespoke 48px/52px buttons).
 
 ### Media and styling
 

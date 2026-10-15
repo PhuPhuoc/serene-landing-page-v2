@@ -5,6 +5,8 @@ import Intro from "~/components/blocks/Intro.vue";
 import DayAt from "~/components/blocks/DayAt.vue";
 import Section from "~/components/blocks/Section.vue";
 import Visit from "~/components/blocks/Visit.vue";
+import Membership from "~/components/blocks/Membership.vue";
+import Tier from "~/components/blocks/Tier.vue";
 const route = useRoute();
 
 const { locales, defaultLocale } = useI18n();
@@ -40,9 +42,11 @@ const { data: pageRes, error } = await useFetch<PageReponse>(
 );
 
 if (error.value || !pageRes.value) {
+  // BFF đã trả 404 "Page not found" cho slug sai; các lỗi khác (400/500 từ
+  // Strapi) phải giữ nguyên mã để không bị che thành 404.
   throw createError({
-    statusCode: 404,
-    statusMessage: "Page not found",
+    statusCode: error.value?.statusCode ?? 404,
+    statusMessage: error.value?.statusMessage ?? "Page not found",
     fatal: true,
   });
 }
@@ -62,6 +66,8 @@ useSeoMeta({
       <DayAt v-if="block.type === 'day-at'" v-bind="block" />
       <Section v-if="block.type === 'simple-section'" v-bind="block" />
       <Visit v-if="block.type === 'visit'" v-bind="block" />
+      <Membership v-if="block.type === 'membership'" v-bind="block" />
+      <Tier v-if="block.type === 'tier'" v-bind="block" />
     </template>
   </main>
 </template>

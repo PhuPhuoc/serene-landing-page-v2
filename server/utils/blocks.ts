@@ -1,3 +1,4 @@
+import type { StrapiFeature, StrapiPricingTier } from "../types/strapi";
 import { mapBackground, mapLink, mapMedia } from "./mapper";
 
 // server/utils/blocks.ts
@@ -67,7 +68,6 @@ export const blockRegistry = {
     populate: {
       image: true,
       cta: { populate: ["page"] },
-      // background: true,
       background: { populate: { image: true } },
     },
     map: (b, strapiURL) => ({
@@ -110,6 +110,57 @@ export const blockRegistry = {
       newsletterText: b.newsletterText,
       emailPlaceholder: b.emailPlaceholder,
       submitLabel: b.submitLabel,
+    }),
+  },
+
+  "block.membership": {
+    populate: {
+      primaryCta: { populate: ["page"] },
+      secondaryCta: { populate: ["page"] },
+      features: true,
+      background: { populate: { image: true } },
+    },
+    map: (b, strapiURL) => ({
+      type: "membership" as const,
+      id: b.id,
+      eyebrow: b.eyebrow,
+      heading: b.heading,
+      description: b.description,
+      primaryCta: mapLink(b.primaryCta),
+      secondaryCta: mapLink(b.secondaryCta),
+      features: (b.features ?? []).map((f: StrapiFeature) => ({
+        id: f.id,
+        title: f.title,
+        description: f.description,
+      })),
+      background: mapBackground(b.background, strapiURL),
+    }),
+  },
+
+  "block.tier": {
+    populate: {
+      primaryCta: { populate: ["page"] },
+      secondaryCta: { populate: ["page"] },
+      tiers: true,
+      background: { populate: { image: true } },
+    },
+    map: (b, strapiURL) => ({
+      type: "tier" as const,
+      id: b.id,
+      eyebrow: b.eyebrow,
+      heading: b.heading,
+      note: b.note,
+      primaryCta: mapLink(b.primaryCta),
+      secondaryCta: mapLink(b.secondaryCta),
+      tiers: (b.tiers ?? []).map((t: StrapiPricingTier) => ({
+        id: t.id,
+        name: t.name,
+        price: t.price,
+        priceLabel: t.priceLabel,
+        description: t.description,
+        period: t.period,
+      })),
+      background: mapBackground(b.background, strapiURL),
     }),
   },
 } satisfies Record<string, BlockDef<unknown>>;

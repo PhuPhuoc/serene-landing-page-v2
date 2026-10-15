@@ -48,7 +48,7 @@ export enum BackgroundType {
   IMAGE = "image",
 }
 
-export type BackgroundBlock = {
+export type Background = {
   type: BackgroundType;
   hexColor?: string | null;
   image?: Media | null;
@@ -105,7 +105,7 @@ export type SimpleSection = {
   imagePosition: ImagePositon;
   cta: Link;
   ctaVariant: CtaVariant;
-  background: BackgroundBlock;
+  background: Background | null;
 };
 
 export type Visit = {
@@ -130,8 +130,53 @@ export type Visit = {
   submitLabel?: string;
 };
 
+export type Feature = {
+  id: number;
+  title: string;
+  description?: string;
+};
+export type Membership = {
+  type: "membership";
+  id: number;
+  eyebrow: string;
+  heading: string;
+  description?: string;
+  primaryCta: Link;
+  secondaryCta: Link;
+  features: Feature[];
+  background: Background | null;
+};
+
+export type PricingTier = {
+  id: number;
+  name: string;
+  price: string; // biginteger giữ nguyên dạng string, format ở component
+  priceLabel: string;
+  description?: string | null;
+  period?: string | null;
+};
+
+export type Tier = {
+  type: "tier";
+  id: number;
+  eyebrow: string;
+  heading: string;
+  note?: string | null;
+  primaryCta: Link;
+  secondaryCta: Link;
+  tiers: PricingTier[];
+  background: Background | null;
+};
+
 // Main Type
-export type PageBlock = Hero | Intro | DayAt | SimpleSection | Visit;
+export type PageBlock =
+  | Hero
+  | Intro
+  | DayAt
+  | SimpleSection
+  | Visit
+  | Membership
+  | Tier;
 
 export type PageReponse = {
   title: string;

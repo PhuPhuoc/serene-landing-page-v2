@@ -1,21 +1,8 @@
 <script setup lang="ts">
-import { LinkType, type Hero } from "../../../types";
+import { type Hero } from "../../../types";
 
-const localePath = useLocalePath();
 const props = defineProps<Partial<Hero>>();
-
-const linkProps = (l: Link) => {
-  const isExternal = l.type === LinkType.EXTERNAL;
-  const path = l.to ?? "#";
-  if (isExternal) {
-    return {
-      href: path,
-      target: l.newTab ? "_blank" : undefined,
-      rel: "noopener noreferrer",
-    };
-  }
-  return { to: path === "#" ? "#" : localePath(path) };
-};
+const linkProps = useLinkProps();
 </script>
 
 <template>
