@@ -163,6 +163,25 @@ export const blockRegistry = {
       background: mapBackground(b.background, strapiURL),
     }),
   },
+
+  "block.club-events": {
+    populate: {
+      primaryCta: { populate: ["page"] },
+      secondaryCta: { populate: ["page"] },
+      background: { populate: { image: true } },
+    },
+    map: (b, strapiURL) => ({
+      type: "club-event" as const,
+      id: b.id,
+      eyebrow: b.eyebrow,
+      heading: b.heading,
+      note: b.note,
+      limit: b.limit,
+      primaryCta: mapLink(b.primaryCta),
+      secondaryCta: mapLink(b.secondaryCta),
+      background: mapBackground(b.background, strapiURL),
+    }),
+  },
 } satisfies Record<string, BlockDef<unknown>>;
 
 export const blocksPopulate = {

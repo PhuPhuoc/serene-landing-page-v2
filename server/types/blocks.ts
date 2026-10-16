@@ -13,10 +13,5 @@ export {
   type Background,
   ImagePositon,
   CtaVariant,
-  type Hero,
-  type Intro,
-  type DayAt,
-  type SimpleSection,
-  type Visit,
   type PageBlock,
 } from "../../types";

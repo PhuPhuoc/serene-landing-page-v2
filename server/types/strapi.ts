@@ -212,6 +212,42 @@ export type StrapiTier = {
   background?: StrapiBackground | null;
 };
 
+export type StrapiClubEvent = {
+  __component: "block.club-event";
+  id: number;
+  eyebrow: string;
+  heading: string;
+  note?: string | null;
+  limit?: number | 10;
+  primaryCta?: StrapiLink | null;
+  secondaryCta?: StrapiLink | null;
+  background?: StrapiBackground | null;
+};
+
+// Club events (collection `club-events`)
+export type StrapiVenue = {
+  id: number;
+  documentId: string;
+  name: string;
+};
+
+export type StrapiCategory = {
+  id: number;
+  documentId: string;
+  name: string;
+};
+
+export type StrapiClubEventItem = {
+  id: number;
+  documentId: string;
+  locale: Locale;
+  title: string;
+  description?: string | null;
+  date: string; // Strapi datetime → ISO 8601 string
+  venues?: StrapiVenue | null;
+  categories?: StrapiCategory[] | null;
+};
+
 export type StrapiPageBlock =
   | StrapiHero
   | StrapiIntro
@@ -219,4 +255,5 @@ export type StrapiPageBlock =
   | StrapiSimpleSection
   | StrapiVisit
   | StrapiMembership
-  | StrapiTier;
+  | StrapiTier
+  | StrapiClubEvent;

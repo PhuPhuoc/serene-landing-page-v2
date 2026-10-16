@@ -150,7 +150,7 @@ export type Membership = {
 export type PricingTier = {
   id: number;
   name: string;
-  price: string; // biginteger giữ nguyên dạng string, format ở component
+  price: string;
   priceLabel: string;
   description?: string | null;
   period?: string | null;
@@ -168,17 +168,43 @@ export type Tier = {
   background: Background | null;
 };
 
+// club event
+export type ClubEvent = {
+  type: "club-event";
+  id: number;
+  eyebrow: string;
+  heading: string;
+  note?: string | null;
+  limit?: number | 10;
+  primaryCta: Link;
+  secondaryCta: Link;
+  background: Background | null;
+};
+
 // Main Type
 export type PageBlock =
-  | Hero
-  | Intro
-  | DayAt
-  | SimpleSection
-  | Visit
-  | Membership
-  | Tier;
+  Hero | Intro | DayAt | SimpleSection | Visit | Membership | Tier | ClubEvent;
 
 export type PageReponse = {
   title: string;
   blocks: PageBlock[];
+};
+
+// Club events (collection `club-events`) — shape trả về của /api/club-events
+export type ClubEventItem = {
+  id: number;
+  title: string;
+  description: string | null;
+  date: string; // ISO 8601 — component tự format theo locale
+  venues: {
+    name: string;
+  } | null;
+  categories: {
+    name: string;
+  }[];
+};
+
+// Response của `/api/club-events` (server trả, client đọc — dùng chung 1 type)
+export type ClubEventsResponse = {
+  events: ClubEventItem[];
 };

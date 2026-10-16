@@ -40,8 +40,8 @@ Invariants to preserve:
 | Path | Purpose |
 |---|---|
 | `app/` | Vue UI (`~` / `@` alias → `app/`). `pages/[...slug].vue` is the only route, `layouts/default.vue` is Navbar + slot + Footer, components in `app/components/`. No `stores/`, `plugins/`, `middleware/`, or `app/assets/`. |
-| `app/composables/` | Auto-imported helpers shared by every block: `useLinkProps()` (CMS `Link` → `NuxtLink`/`<a>` props, interior targets through `localePath`), `useBackground()` (`background` default/color/image → `{ style, image, onDark }`, WCAG-based light/dark text tone, `defaultOnDark` for blocks whose default look is a dark panel). |
-| `server/api/` | Nitro BFF: `navigation.get.ts`, `footer.get.ts`, `pages/[slug].get.ts` (single segment — `/api/pages/a/b` is 404). |
+|`app/composables/`|Auto-imported helpers shared by every block: `useLinkProps()` (CMS `Link` → `NuxtLink`/`<a>` props, interior targets through `localePath`), `useBackground()` (`background` default/color/image → `{ style, image, onDark }`, WCAG-based light/dark text tone, `defaultOnDark` for blocks whose default look is a dark panel), `usePagination()` (list + `limit` của block → `{ page, pageCount, pageItems, hasPrev, hasNext, goTo }`, tự về trang 1 khi danh sách đổi), `useFacetFilter()` (facets như venues/categories → `{ filtered, options, isActive, isPicked, toggle, clear }`, OR trong 1 facet, AND giữa các facet).|
+| `server/api/` | Nitro BFF: `navigation.get.ts`, `footer.get.ts`, `pages/[slug].get.ts` (single segment — `/api/pages/a/b` is 404), `club-events.get.ts` (list collection `club-events`, `sort=date:asc`, populate `venues.name` + `categories.name`; response `{ events }` of `ClubEventItem`). |
 | `server/utils/` | `fetch-strapi.ts` (`fetchCMS`), `locale.ts` (`resolveLocale`, `SUPPORTED_LOCALES`), `mapper.ts` (media/link/background/menu-item mappers, `LinkType` re-export), `blocks.ts` (`blockRegistry`, `blocksPopulate`), `errors.ts`. |
 | `server/types/` | `strapi.ts` = wire types (`Strapi*`, one per `__component`); `blocks.ts` = legacy shim re-exporting `../../types`. |
 | `types/index.ts` | **Canonical shared client + server models** (`~~/types`). Root level — not `app/`, not Nuxt's `shared/`. |
@@ -161,7 +161,7 @@ Every content block receives the same `background` object; the logic is shared, 
 
 | File | Why it matters |
 |---|---|
-| `app/pages/[...slug].vue` | **Only route and still an unimplemented placeholder** (`<h1>hi</h1>` ×21). Replacing it with a real renderer for `/api/pages/:slug` blocks is the outstanding work. Every catch-all URL lands here; there is no `index.vue`, so `/` 302s to `/en` and renders the layout alone. |
+|`app/pages/[...slug].vue`|**Only route**: fetches `/api/pages/:slug?locale=`, throws `createError` on failure, then renders each block through a `v-for` of `v-if` branches (`<ClubEvent v-if="block.type === 'club-event'" v-bind="block" />`). Every catch-all URL lands here; there is no `index.vue`, so `/` 302s to `/en` and renders the layout alone.|
 | `app/components/Navbar.vue` (739 lines) | Largest file; owns locale switching, mobile drawer state, dropdown + flattened-menu logic, and the two header states (see below). Read before touching navigation. |
 | `app/components/Footer.vue` | Reference implementation of the all-locales fetch pattern and link rendering. |
 | `server/utils/blocks.ts` | Block registry + generated `blocksPopulate` — the extension point for page content. |
