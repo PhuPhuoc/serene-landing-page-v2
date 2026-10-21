@@ -41,7 +41,7 @@ Invariants to preserve:
 |---|---|
 | `app/` | Vue UI (`~` / `@` alias → `app/`). `pages/[...slug].vue` is the only route, `layouts/default.vue` is Navbar + slot + Footer, components in `app/components/`. No `stores/`, `plugins/`, `middleware/`, or `app/assets/`. |
 |`app/composables/`|Auto-imported helpers shared by every block: `useLinkProps()` (CMS `Link` → `NuxtLink`/`<a>` props, interior targets through `localePath`), `useBackground()` (`background` default/color/image → `{ style, image, onDark }`, WCAG-based light/dark text tone, `defaultOnDark` for blocks whose default look is a dark panel), `usePagination()` (list + `limit` của block → `{ page, pageCount, pageItems, hasPrev, hasNext, goTo }`, tự về trang 1 khi danh sách đổi), `useFacetFilter()` (facets như venues/categories → `{ filtered, options, isActive, isPicked, toggle, clear }`, OR trong 1 facet, AND giữa các facet).|
-| `server/api/` | Nitro BFF: `navigation.get.ts`, `footer.get.ts`, `pages/[slug].get.ts` (single segment — `/api/pages/a/b` is 404), `club-events.get.ts` (list collection `club-events`, `sort=date:asc`, populate `venues.name` + `categories.name`; response `{ events }` of `ClubEventItem`). |
+| `server/api/` | Nitro BFF: `navigation.get.ts`, `footer.get.ts`, `pages/[slug].get.ts` (single segment — `/api/pages/a/b` is 404), `club-events.get.ts` (list collection `club-events`, `sort=date:asc`, populate `venues.name` + `categories.name`; response `{ events }` of `ClubEventItem`), `event-venues.get.ts` (list collection `event-venues`, populate `stockPhoto`; response `{ venues }` of `EventVenue`). |
 | `server/utils/` | `fetch-strapi.ts` (`fetchCMS`), `locale.ts` (`resolveLocale`, `SUPPORTED_LOCALES`), `mapper.ts` (media/link/background/menu-item mappers, `LinkType` re-export), `blocks.ts` (`blockRegistry`, `blocksPopulate`), `errors.ts`. |
 | `server/types/` | `strapi.ts` = wire types (`Strapi*`, one per `__component`); `blocks.ts` = legacy shim re-exporting `../../types`. |
 | `types/index.ts` | **Canonical shared client + server models** (`~~/types`). Root level — not `app/`, not Nuxt's `shared/`. |
@@ -164,6 +164,7 @@ Every content block receives the same `background` object; the logic is shared, 
 |`app/pages/[...slug].vue`|**Only route**: fetches `/api/pages/:slug?locale=`, throws `createError` on failure, then renders each block through a `v-for` of `v-if` branches (`<ClubEvent v-if="block.type === 'club-event'" v-bind="block" />`). Every catch-all URL lands here; there is no `index.vue`, so `/` 302s to `/en` and renders the layout alone.|
 | `app/components/Navbar.vue` (739 lines) | Largest file; owns locale switching, mobile drawer state, dropdown + flattened-menu logic, and the two header states (see below). Read before touching navigation. |
 | `app/components/Footer.vue` | Reference implementation of the all-locales fetch pattern and link rendering. |
+| `app/components/Gallery.vue` | Reusable photo gallery: ảnh lớn + thumbnail + modal slideshow toàn màn hình (←/→/Esc, focus trap). Dùng bởi `PrivateEvent.vue`; nhận `images: Media[]`. |
 | `server/utils/blocks.ts` | Block registry + generated `blocksPopulate` — the extension point for page content. |
 | `server/utils/mapper.ts` | All wire → client translation. Add field mappings here, never in components. |
 | `types/index.ts` | Single source of shared models and the `PageBlock` union. |
@@ -208,6 +209,7 @@ Every content block receives the same `background` object; the logic is shared, 
   curl 'http://localhost:3000/api/navigation?locale=en'      # 200; menuItems[].to like "/the-club"
   curl 'http://localhost:3000/api/footer?locale=vi'          # 200; localized address/columns
   curl 'http://localhost:3000/api/pages/the-club?locale=en'   # 200; blocks hero,intro,day-at,simple-section×7,visit
+  curl 'http://localhost:3000/api/event-venues?locale=en'     # 200; venues[].photos absolute URLs
   curl -I 'http://localhost:3000/en/'                         # 200 SSR html; "/" → 302 /en
   ```
   Failure modes observed: Strapi down ⇒ 500 `Unable to fetch content`; unknown slug ⇒ 404 `Page not found`; `/api/pages/a/b` ⇒ 404.

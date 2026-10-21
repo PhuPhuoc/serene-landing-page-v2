@@ -226,3 +226,22 @@ export type ClubEventItem = {
 export type ClubEventsResponse = {
   events: ClubEventItem[];
 };
+
+// Event venues (collection `event-venues`) — shape trả về của /api/event-venues
+export type SpaceType = "indoor" | "outdoor";
+
+export type EventVenue = {
+  id: number;
+  name: string;
+  spaceType: SpaceType;
+  description: string;
+  area: number | null;
+  areaLabel: string;
+  capacity: number | null;
+  capacityLabel: string;
+  photos: Media[];
+};
+
+export type EventVenuesResponse = {
+  venues: EventVenue[];
+};

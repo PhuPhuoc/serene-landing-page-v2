@@ -248,6 +248,21 @@ export type StrapiClubEventItem = {
   categories?: StrapiCategory[] | null;
 };
 
+// Event venues (collection `event-venues`)
+export type StrapiEventVenue = {
+  id: number;
+  documentId: string;
+  locale: Locale;
+  name: string;
+  spaceType: "indoor" | "outdoor";
+  description?: string | null;
+  area?: number | null;
+  areaLabel?: string | null;
+  capacity?: number | null;
+  capacityLabel?: string | null;
+  stockPhoto?: StrapiMedia[] | null;
+};
+
 export type StrapiPrivateEvent = {
   __component: "block.private-event";
   id: number;
