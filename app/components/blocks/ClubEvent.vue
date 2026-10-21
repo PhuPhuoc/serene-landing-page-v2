@@ -345,7 +345,6 @@ const nextLabel = computed(() =>
   .event-row {
     grid-template-columns: 132px minmax(0, 1fr) 200px 120px;
     align-items: center;
-    gap-y: 0;
   }
 }
 /* Ngày + giờ bắt đầu xếp 2 dòng trong cùng cột 132px của design */

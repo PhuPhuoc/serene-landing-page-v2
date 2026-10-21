@@ -248,6 +248,17 @@ export type StrapiClubEventItem = {
   categories?: StrapiCategory[] | null;
 };
 
+export type StrapiPrivateEvent = {
+  __component: "block.private-event";
+  id: number;
+  eyebrow: string;
+  heading: string;
+  description?: string | null;
+  primaryCta?: StrapiLink | null;
+  secondaryCta?: StrapiLink | null;
+  background?: StrapiBackground | null;
+};
+
 export type StrapiPageBlock =
   | StrapiHero
   | StrapiIntro
@@ -256,4 +267,5 @@ export type StrapiPageBlock =
   | StrapiVisit
   | StrapiMembership
   | StrapiTier
-  | StrapiClubEvent;
+  | StrapiClubEvent
+  | StrapiPrivateEvent;

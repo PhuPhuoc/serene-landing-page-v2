@@ -8,6 +8,7 @@ import Visit from "~/components/blocks/Visit.vue";
 import Membership from "~/components/blocks/Membership.vue";
 import Tier from "~/components/blocks/Tier.vue";
 import ClubEvent from "~/components/blocks/ClubEvent.vue";
+import PrivateEvent from "~/components/blocks/PrivateEvent.vue";
 const route = useRoute();
 
 const { locales, defaultLocale } = useI18n();
@@ -70,6 +71,7 @@ useSeoMeta({
       <Membership v-if="block.type === 'membership'" v-bind="block" />
       <Tier v-if="block.type === 'tier'" v-bind="block" />
       <ClubEvent v-if="block.type === 'club-event'" v-bind="block" />
+      <PrivateEvent v-if="block.type === 'private-event'" v-bind="block" />
     </template>
   </main>
 </template>

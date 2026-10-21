@@ -182,6 +182,24 @@ export const blockRegistry = {
       background: mapBackground(b.background, strapiURL),
     }),
   },
+
+  "block.private-event": {
+    populate: {
+      primaryCta: { populate: ["page"] },
+      secondaryCta: { populate: ["page"] },
+      background: { populate: { image: true } },
+    },
+    map: (b, strapiURL) => ({
+      type: "private-event" as const,
+      id: b.id,
+      eyebrow: b.eyebrow,
+      heading: b.heading,
+      description: b.description,
+      primaryCta: mapLink(b.primaryCta),
+      secondaryCta: mapLink(b.secondaryCta),
+      background: mapBackground(b.background, strapiURL),
+    }),
+  },
 } satisfies Record<string, BlockDef<unknown>>;
 
 export const blocksPopulate = {

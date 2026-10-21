@@ -168,7 +168,6 @@ export type Tier = {
   background: Background | null;
 };
 
-// club event
 export type ClubEvent = {
   type: "club-event";
   id: number;
@@ -181,9 +180,28 @@ export type ClubEvent = {
   background: Background | null;
 };
 
+export type PrivateEvent = {
+  type: "private-event";
+  id: number;
+  eyebrow: string;
+  heading: string;
+  description?: string | null;
+  primaryCta: Link;
+  secondaryCta: Link;
+  background: Background | null;
+};
+
 // Main Type
 export type PageBlock =
-  Hero | Intro | DayAt | SimpleSection | Visit | Membership | Tier | ClubEvent;
+  | Hero
+  | Intro
+  | DayAt
+  | SimpleSection
+  | Visit
+  | Membership
+  | Tier
+  | ClubEvent
+  | PrivateEvent;
 
 export type PageReponse = {
   title: string;
