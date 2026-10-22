@@ -298,6 +298,24 @@ export type StrapiWindAndDine = {
   background: StrapiBackground | null;
 };
 
+export type StrapiBento = {
+  id: number;
+  heading: string;
+  description?: string | null;
+  images?: StrapiMedia[] | null;
+  defaultHexColor?: string | null;
+};
+
+export type StrapiWellnessAndLeisure = {
+  __component: "block.wellness-and-leisure";
+  id: number;
+  eyebrow: string;
+  heading: string;
+  description?: string | null;
+  bentos: StrapiBento[];
+  background: StrapiBackground | null;
+};
+
 export type StrapiPageBlock =
   | StrapiHero
   | StrapiIntro
@@ -308,4 +326,5 @@ export type StrapiPageBlock =
   | StrapiTier
   | StrapiClubEvent
   | StrapiPrivateEvent
-  | StrapiWindAndDine;
+  | StrapiWindAndDine
+  | StrapiWellnessAndLeisure;

@@ -215,6 +215,24 @@ export type WineAndDine = {
   background: Background | null;
 };
 
+export type Bento = {
+  id: number;
+  heading: string;
+  description?: string | null;
+  images: Media[];
+  defaultHexColor?: string | null;
+};
+
+export type WellnessAndLeisure = {
+  type: "wellness-and-leisure";
+  id: number;
+  eyebrow: string;
+  heading: string;
+  description?: string | null;
+  bentos: Bento[];
+  background: Background | null;
+};
+
 // Main Type
 export type PageBlock =
   | Hero
@@ -226,7 +244,8 @@ export type PageBlock =
   | Tier
   | ClubEvent
   | PrivateEvent
-  | WineAndDine;
+  | WineAndDine
+  | WellnessAndLeisure;
 
 export type PageReponse = {
   title: string;

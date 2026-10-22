@@ -1,6 +1,7 @@
 import { CTAStyle } from "~~/types";
 import {
   StrapiCTAStyle,
+  type StrapiBento,
   type StrapiCard,
   type StrapiFeature,
   type StrapiPricingTier,
@@ -233,6 +234,34 @@ export const blockRegistry = {
             : CTAStyle.LINK,
         image: t.image ? mapMedia(t.image, strapiURL) : null,
         imageCaption: t.imageCaption ? t.imageCaption : "",
+      })),
+      background: mapBackground(b.background, strapiURL),
+    }),
+  },
+
+  "block.wellness-and-leisure": {
+    populate: {
+      bentos: {
+        populate: {
+          images: true,
+        },
+      },
+      background: { populate: { image: true } },
+    },
+    map: (b, strapiURL) => ({
+      type: "wellness-and-leisure" as const,
+      id: b.id,
+      eyebrow: b.eyebrow,
+      heading: b.heading,
+      description: b.description,
+      bentos: (b.bentos ?? []).map((t: StrapiBento) => ({
+        id: t.id,
+        heading: t.heading,
+        description: t.description,
+        images: (t.images ?? [])
+          .filter((m) => !!m?.url)
+          .map((m) => mapMedia(m, strapiURL)),
+        defaultHexColor: t.defaultHexColor,
       })),
       background: mapBackground(b.background, strapiURL),
     }),
