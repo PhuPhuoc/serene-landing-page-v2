@@ -1,4 +1,10 @@
-import type { StrapiFeature, StrapiPricingTier } from "../types/strapi";
+import { CTAStyle } from "~~/types";
+import {
+  StrapiCTAStyle,
+  type StrapiCard,
+  type StrapiFeature,
+  type StrapiPricingTier,
+} from "../types/strapi";
 import { mapBackground, mapLink, mapMedia } from "./mapper";
 
 // server/utils/blocks.ts
@@ -197,6 +203,37 @@ export const blockRegistry = {
       description: b.description,
       primaryCta: mapLink(b.primaryCta),
       secondaryCta: mapLink(b.secondaryCta),
+      background: mapBackground(b.background, strapiURL),
+    }),
+  },
+
+  "block.wine-and-dine": {
+    populate: {
+      venues: {
+        populate: {
+          cta: { populate: ["page"] },
+          image: true,
+        },
+      },
+      background: { populate: { image: true } },
+    },
+    map: (b, strapiURL) => ({
+      type: "wine-and-dine" as const,
+      id: b.id,
+      eyebrow: b.eyebrow,
+      heading: b.heading,
+      venues: (b.venues ?? []).map((t: StrapiCard) => ({
+        id: t.id,
+        heading: t.heading,
+        description: t.description,
+        cta: mapLink(t.cta),
+        ctaStyle:
+          t.ctaStyle === StrapiCTAStyle.BUTTON
+            ? CTAStyle.BUTTON
+            : CTAStyle.LINK,
+        image: t.image ? mapMedia(t.image, strapiURL) : null,
+        imageCaption: t.imageCaption ? t.imageCaption : "",
+      })),
       background: mapBackground(b.background, strapiURL),
     }),
   },

@@ -191,6 +191,30 @@ export type PrivateEvent = {
   background: Background | null;
 };
 
+export enum CTAStyle {
+  BUTTON = "button",
+  LINK = "link",
+}
+
+export type Card = {
+  id: number;
+  heading: string;
+  description: string;
+  cta: Link;
+  ctaStyle: CTAStyle;
+  image?: Media | null;
+  imageCaption?: string | "";
+};
+
+export type WineAndDine = {
+  type: "wine-and-dine";
+  id: number;
+  eyebrow: string;
+  heading: string;
+  venues: Card[];
+  background: Background | null;
+};
+
 // Main Type
 export type PageBlock =
   | Hero
@@ -201,7 +225,8 @@ export type PageBlock =
   | Membership
   | Tier
   | ClubEvent
-  | PrivateEvent;
+  | PrivateEvent
+  | WineAndDine;
 
 export type PageReponse = {
   title: string;

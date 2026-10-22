@@ -30,10 +30,10 @@ export default defineEventHandler(
       venues: venuesResponse.data.map((v) => ({
         id: v.id,
         name: v.name,
-        // Strapi chỉ có 2 giá trị enum; giá trị lạ (CMS đổi schema) về indoor
-        // thay vì để type client vỡ.
         spaceType:
-          v.spaceType === "outdoor" ? ("outdoor" as const) : ("indoor" as const),
+          v.spaceType === "outdoor"
+            ? ("outdoor" as const)
+            : ("indoor" as const),
         description: v.description ?? "",
         area: v.area ?? null,
         areaLabel: v.areaLabel ?? "",

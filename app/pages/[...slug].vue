@@ -9,6 +9,7 @@ import Membership from "~/components/blocks/Membership.vue";
 import Tier from "~/components/blocks/Tier.vue";
 import ClubEvent from "~/components/blocks/ClubEvent.vue";
 import PrivateEvent from "~/components/blocks/PrivateEvent.vue";
+import WineAndDine from "~/components/blocks/WineAndDine.vue";
 const route = useRoute();
 
 const { locales, defaultLocale } = useI18n();
@@ -44,8 +45,6 @@ const { data: pageRes, error } = await useFetch<PageReponse>(
 );
 
 if (error.value || !pageRes.value) {
-  // BFF đã trả 404 "Page not found" cho slug sai; các lỗi khác (400/500 từ
-  // Strapi) phải giữ nguyên mã để không bị che thành 404.
   throw createError({
     statusCode: error.value?.statusCode ?? 404,
     statusMessage: error.value?.statusMessage ?? "Page not found",
@@ -72,6 +71,7 @@ useSeoMeta({
       <Tier v-if="block.type === 'tier'" v-bind="block" />
       <ClubEvent v-if="block.type === 'club-event'" v-bind="block" />
       <PrivateEvent v-if="block.type === 'private-event'" v-bind="block" />
+      <WineAndDine v-if="block.type === 'wine-and-dine'" v-bind="block" />
     </template>
   </main>
 </template>

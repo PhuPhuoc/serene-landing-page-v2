@@ -257,7 +257,7 @@ const hasCapacity = computed(() => activeVenue.value?.capacity != null);
 <style scoped>
 /* === Khung === */
 .private-event {
-  @apply relative overflow-hidden py-20 sm:py-24 xl:py-10;
+  @apply relative overflow-hidden py-10 sm:py-14 xl:py-10;
 }
 .private-event--light {
   @apply bg-cream text-dark;

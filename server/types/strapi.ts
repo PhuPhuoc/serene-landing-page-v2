@@ -274,6 +274,30 @@ export type StrapiPrivateEvent = {
   background?: StrapiBackground | null;
 };
 
+export enum StrapiCTAStyle {
+  BUTTON = "button",
+  LINK = "link",
+}
+
+export type StrapiCard = {
+  id: number;
+  heading: string;
+  description: string;
+  cta: StrapiLink;
+  ctaStyle: StrapiCTAStyle;
+  image?: StrapiMedia | null;
+  imageCaption?: string | "";
+};
+
+export type StrapiWindAndDine = {
+  __component: "block.wine-and-dine";
+  id: number;
+  eyebrow: string;
+  heading: string;
+  venues: StrapiCard[];
+  background: StrapiBackground | null;
+};
+
 export type StrapiPageBlock =
   | StrapiHero
   | StrapiIntro
@@ -283,4 +307,5 @@ export type StrapiPageBlock =
   | StrapiMembership
   | StrapiTier
   | StrapiClubEvent
-  | StrapiPrivateEvent;
+  | StrapiPrivateEvent
+  | StrapiWindAndDine;
