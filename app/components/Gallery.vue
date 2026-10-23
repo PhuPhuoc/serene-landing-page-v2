@@ -15,8 +15,18 @@ const props = withDefaults(
     variant?: "default" | "bento";
     // Tự chuyển ảnh; component cha có thể tắt (vd: khi mở modal)
     autoplay?: boolean;
+    // Thời gian giữ mỗi ảnh (ms) trước khi tự chuyển; mặc định 6s cho mọi
+    // nơi dùng Gallery, block có thể truyền giá trị riêng nếu cần.
+    interval?: number;
   }>(),
-  { images: () => [], alt: "", label: "", variant: "default", autoplay: true },
+  {
+    images: () => [],
+    alt: "",
+    label: "",
+    variant: "default",
+    autoplay: true,
+    interval: 6000,
+  },
 );
 
 const { locale } = useI18n();
@@ -34,7 +44,10 @@ const autoplay = computed(
   () => props.autoplay && !hovered.value && !focusWithin.value && !open.value,
 );
 
-const { index, count, current, go, goTo } = useGallery(images, { autoplay });
+const { index, count, current, go, goTo } = useGallery(images, {
+  autoplay,
+  interval: props.interval,
+});
 const currentAlt = computed(() => current.value?.alt || props.alt);
 
 // Nạp trước ảnh kề để lúc tự chuyển ảnh không bị trống/giật do ảnh chưa tải.
@@ -798,7 +811,8 @@ onBeforeUnmount(() => {
   @apply h-full w-full object-contain;
 }
 .gallery-modal-nav {
-  @apply absolute top-1/2 z-30 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-cream/90 text-dark transition-colors hover:bg-cream;
+  @apply absolute top-1/2 z-30 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-transparent text-cream transition-colors hover:text-warm-400;
+  filter: drop-shadow(0 2px 6px rgb(0 0 0 / 0.55));
 }
 .gallery-modal-nav svg {
   @apply h-5 w-5;

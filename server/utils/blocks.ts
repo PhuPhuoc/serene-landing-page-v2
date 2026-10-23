@@ -2,14 +2,10 @@ import {
   type StrapiBento,
   type StrapiCard,
   type StrapiFeature,
+  type StrapiMedia,
   type StrapiPricingTier,
 } from "../types/strapi";
-import {
-  CtaVariant,
-  mapBackground,
-  mapLink,
-  mapMedia,
-} from "./mapper";
+import { CtaVariant, mapBackground, mapLink, mapMedia } from "./mapper";
 
 // server/utils/blocks.ts
 type BlockDef<T> = {
@@ -32,9 +28,7 @@ export const blockRegistry = {
       subheadline: b.subheadline,
       backgroundImage: mapMedia(b.backgroundImage, strapiUrl),
       imageCaption: b.imageCaption,
-      primaryCta: b.primaryCta
-        ? mapLink(b.primaryCta, CtaVariant.SOLID)
-        : null,
+      primaryCta: b.primaryCta ? mapLink(b.primaryCta, CtaVariant.SOLID) : null,
       secondaryCta: b.secondaryCta
         ? mapLink(b.secondaryCta, CtaVariant.UNDERLINE)
         : null,
@@ -267,6 +261,38 @@ export const blockRegistry = {
           .map((m) => mapMedia(m, strapiURL)),
         defaultHexColor: t.defaultHexColor,
       })),
+      background: mapBackground(b.background, strapiURL),
+    }),
+  },
+
+  "block.art-and-culture": {
+    populate: {
+      exhibition: {
+        populate: { coverImage: true, cta: { populate: ["page"] } },
+      },
+      cta: { populate: ["page"] },
+      background: { populate: { image: true } },
+    },
+    map: (b, strapiURL) => ({
+      type: "art-and-culture" as const,
+      id: b.id,
+      eyebrow: b.eyebrow,
+      exhibition: b.exhibition
+        ? {
+            id: b.exhibition.id,
+            title: b.exhibition.title,
+            artistName: b.exhibition.artistName,
+            startDate: b.exhibition.startDate,
+            description: b.exhibition.description,
+            curatorialNote: b.exhibition.curatorialNote,
+            endDate: b.exhibition.endDate,
+            coverImage: (b.exhibition.coverImage ?? [])
+              .filter((m: StrapiMedia) => !!m?.url)
+              .map((m: StrapiMedia) => mapMedia(m, strapiURL)),
+            cta: mapLink(b.exhibition.cta),
+          }
+        : null,
+      cta: mapLink(b.cta),
       background: mapBackground(b.background, strapiURL),
     }),
   },

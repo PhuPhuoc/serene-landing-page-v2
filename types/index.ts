@@ -230,6 +230,27 @@ export type WellnessAndLeisure = {
   background: Background | null;
 };
 
+export type Exhibition = {
+  id: number;
+  title: string;
+  artistName: string;
+  startDate: Date;
+  endDate: Date;
+  description: string;
+  curatorialNote: string;
+  coverImage: Media[];
+  cta: Link;
+};
+
+export type ArtAndCulture = {
+  type: "art-and-culture";
+  id: number;
+  eyebrow: string;
+  exhibition: Exhibition | null;
+  cta: Link;
+  background: Background | null;
+};
+
 // Main Type
 export type PageBlock =
   | Hero
@@ -242,7 +263,8 @@ export type PageBlock =
   | ClubEvent
   | PrivateEvent
   | WineAndDine
-  | WellnessAndLeisure;
+  | WellnessAndLeisure
+  | ArtAndCulture;
 
 export type PageReponse = {
   title: string;

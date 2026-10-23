@@ -318,6 +318,27 @@ export type StrapiWellnessAndLeisure = {
   background: StrapiBackground | null;
 };
 
+export type StrapiExhibition = {
+  id: number;
+  title: string;
+  artistName: string;
+  startDate: Date;
+  endDate: Date;
+  description: string;
+  curatorialNote: string;
+  coverImage: StrapiMedia[];
+  cta: StrapiLink | null;
+};
+
+export type StrapiArtAndCulture = {
+  __component: "block.art-and-culture";
+  id: number;
+  eyebrow: string;
+  exhibition: StrapiExhibition;
+  cta: StrapiLink;
+  background: StrapiBackground | null;
+};
+
 export type StrapiPageBlock =
   | StrapiHero
   | StrapiIntro
@@ -329,4 +350,5 @@ export type StrapiPageBlock =
   | StrapiClubEvent
   | StrapiPrivateEvent
   | StrapiWindAndDine
-  | StrapiWellnessAndLeisure;
+  | StrapiWellnessAndLeisure
+  | StrapiArtAndCulture;
