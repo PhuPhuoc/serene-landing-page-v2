@@ -3,6 +3,7 @@ import { fetchCMS } from "../utils/fetch-strapi.ts";
 import { resolveLocale } from "../utils/locale";
 import { handleStrapiError } from "../utils/errors";
 import {
+  CtaVariant,
   mapMedia,
   mapLink,
   mapMenuItem,
@@ -92,7 +93,7 @@ export default defineEventHandler(
       logoOnDark: mapMedia(headerResponse.logoOnDark, strapiUrl),
       menuItems: headerResponse.navItems.map(mapMenuItem),
       utilityLink: mapLink(headerResponse.utilityLink),
-      cta: mapLink(headerResponse.cta),
+      cta: mapLink(headerResponse.cta, CtaVariant.OUTLINE),
     };
   },
 );

@@ -8,7 +8,6 @@ import {
 import type { FacetSpec } from "~/composables/useFacetFilter";
 
 const props = defineProps<Partial<ClubEvent>>();
-const linkProps = useLinkProps();
 const { locale } = useI18n();
 
 // === Nền: 3 dạng default | color | image (logic dùng chung: useBackground) ===
@@ -243,33 +242,15 @@ const nextLabel = computed(() =>
         v-if="props.primaryCta?.label || props.secondaryCta?.label"
         class="event-actions"
       >
-        <NuxtLink
-          v-if="props.primaryCta?.label"
-          class="event-cta event-cta--primary"
-          v-bind="linkProps(props.primaryCta)"
-        >
-          {{ props.primaryCta.label }}
-          <svg
-            class="event-cta-arrow"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M5 12h14" />
-            <path d="M13 6l6 6-6 6" />
-          </svg>
-        </NuxtLink>
-        <NuxtLink
-          v-if="props.secondaryCta?.label"
-          class="event-cta event-cta--secondary"
-          v-bind="linkProps(props.secondaryCta)"
-        >
-          {{ props.secondaryCta.label }}
-        </NuxtLink>
+        <CtaLink
+          :link="props.primaryCta"
+          :tone="onDark ? 'dark' : 'light'"
+        />
+        <CtaLink
+          :link="props.secondaryCta"
+          size="sm"
+          :tone="onDark ? 'dark' : 'light'"
+        />
       </div>
     </div>
   </section>
@@ -472,29 +453,7 @@ const nextLabel = computed(() =>
   @apply border-cream/40 text-cream hover:bg-cream hover:text-dark;
 }
 
-/* === CTA: nút đặc 48px + link gạch chân 36px như design === */
 .event-actions {
   @apply flex flex-wrap items-center gap-[18px];
-}
-.event-cta {
-  @apply inline-flex items-center tracking-wide;
-}
-.event-cta--primary {
-  @apply h-12 gap-2.5 px-[26px] text-[17px] font-medium;
-}
-.event-cta--secondary {
-  @apply h-9 border-b border-current text-[16px] font-medium;
-}
-.event-cta-arrow {
-  @apply h-4 w-4 transition-transform duration-300;
-}
-.event-cta:hover .event-cta-arrow {
-  @apply translate-x-1;
-}
-.event--light .event-cta--primary {
-  @apply bg-primary text-cream hover:bg-primary-hover hover:text-cream;
-}
-.event--dark .event-cta--primary {
-  @apply bg-cream text-dark hover:bg-warm-400 hover:text-dark;
 }
 </style>

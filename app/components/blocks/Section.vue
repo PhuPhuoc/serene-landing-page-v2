@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import BlockBackground from "~/components/blocks/BlockBackground.vue";
-import { CtaVariant, ImagePositon, type SimpleSection } from "../../../types";
+import { ImagePositon, type SimpleSection } from "../../../types";
 
 const props = defineProps<Partial<SimpleSection>>();
-const linkProps = useLinkProps();
 
 // === Nền: 3 dạng default | color | image (logic dùng chung: useBackground) ===
 const {
@@ -14,12 +13,6 @@ const {
 
 // imagePosition quyết định bên nào giữ ảnh; mobile xếp theo đúng thứ tự đó
 const imageRight = computed(() => props.imagePosition === ImagePositon.RIGHT);
-
-const ctaClass = computed(() =>
-  props.ctaVariant === CtaVariant.SOLID_LIGHT
-    ? "section-cta--solid-light"
-    : "section-cta--solid-dark",
-);
 </script>
 
 <template>
@@ -92,27 +85,11 @@ const ctaClass = computed(() =>
         </h2>
         <p v-if="props.body" class="section-text">{{ props.body }}</p>
 
-        <NuxtLink
-          v-if="props.cta?.label"
-          class="section-cta"
-          :class="ctaClass"
-          v-bind="linkProps(props.cta)"
-        >
-          {{ props.cta.label }}
-          <svg
-            class="section-cta-arrow"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M5 12h14" />
-            <path d="M13 6l6 6-6 6" />
-          </svg>
-        </NuxtLink>
+        <CtaLink
+          :link="props.cta"
+          :tone="onDark ? 'dark' : 'light'"
+          class="self-start"
+        />
       </div>
     </div>
   </section>
@@ -233,22 +210,4 @@ const ctaClass = computed(() =>
   @apply text-warm-400;
 }
 
-/* === CTA: cao 48px như Hero, nền đặc, mũi tên trượt nhẹ khi hover === */
-.section-cta {
-  @apply inline-flex h-12 items-center gap-2.5 self-start px-[26px] text-[17px] font-medium tracking-wide;
-}
-/* solid-dark: nút nâu trên nền sáng */
-.section-cta--solid-dark {
-  @apply bg-primary text-cream hover:bg-primary-hover hover:text-cream;
-}
-/* solid-light: nút kem trên nền tối */
-.section-cta--solid-light {
-  @apply bg-cream text-dark hover:bg-warm-400 hover:text-dark;
-}
-.section-cta-arrow {
-  @apply h-4 w-4 transition-transform duration-300;
-}
-.section-cta:hover .section-cta-arrow {
-  @apply translate-x-1;
-}
 </style>

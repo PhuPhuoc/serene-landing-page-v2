@@ -42,7 +42,7 @@ Invariants to preserve:
 | `app/` | Vue UI (`~` / `@` alias → `app/`). `pages/[...slug].vue` is the only route, `layouts/default.vue` is Navbar + slot + Footer, components in `app/components/`. No `stores/`, `plugins/`, `middleware/`, or `app/assets/`. |
 |`app/composables/`|Auto-imported helpers shared by every block: `useLinkProps()` (CMS `Link` → `NuxtLink`/`<a>` props, interior targets through `localePath`), `useBackground()` (`background` default/color/image → `{ style, image, onDark }`, WCAG-based light/dark text tone, `defaultOnDark` for blocks whose default look is a dark panel), `usePagination()` (list + `limit` của block → `{ page, pageCount, pageItems, hasPrev, hasNext, goTo }`, tự về trang 1 khi danh sách đổi), `useFacetFilter()` (facets như venues/categories → `{ filtered, options, isActive, isPicked, toggle, clear }`, OR trong 1 facet, AND giữa các facet), `useGallery()` (ảnh + chỉ số → `{ index, count, current, go, goTo, reset }`, đi vòng và tự chuyển mỗi 3s; tự dừng khi hover/focus/modal/tab ẩn/`prefers-reduced-motion`).|
 | `server/api/` | Nitro BFF: `navigation.get.ts`, `footer.get.ts`, `pages/[slug].get.ts` (single segment — `/api/pages/a/b` is 404), `club-events.get.ts` (list collection `club-events`, `sort=date:asc`, populate `venues.name` + `categories.name`; response `{ events }` of `ClubEventItem`), `event-venues.get.ts` (list collection `event-venues`, populate `stockPhoto`; response `{ venues }` of `EventVenue`). |
-| `server/utils/` | `fetch-strapi.ts` (`fetchCMS`), `locale.ts` (`resolveLocale`, `SUPPORTED_LOCALES`), `mapper.ts` (media/link/background/menu-item mappers, `LinkType` re-export), `blocks.ts` (`blockRegistry`, `blocksPopulate`), `errors.ts`. |
+| `server/utils/` | `fetch-strapi.ts` (`fetchCMS`), `locale.ts` (`resolveLocale`, `SUPPORTED_LOCALES`), `mapper.ts` (media/link/background/menu-item mappers, `CtaBehavior`/`CtaVariant` re-export), `blocks.ts` (`blockRegistry`, `blocksPopulate`), `errors.ts`. |
 | `server/types/` | `strapi.ts` = wire types (`Strapi*`, one per `__component`); `blocks.ts` = legacy shim re-exporting `../../types`. |
 | `types/index.ts` | **Canonical shared client + server models** (`~~/types`). Root level — not `app/`, not Nuxt's `shared/`. |
 | `assets/css/main.css` | Tailwind entry plus `@layer base` / `@layer utilities`. Root-level `assets/`, **not** `app/assets/`. |
@@ -73,7 +73,7 @@ No formatter, linter, or pre-commit hook exists — match the neighbouring code 
 ### Naming
 
 - Route files follow Nitro/Nuxt convention (`footer.get.ts`); each handler also exports its own response type (`FooterResponse`, `NavigationResponse`, `PageResponse`).
-- Wire types are `Strapi*` and carry the `__component: "block.x"` literal; client models are the mapped shape with a `type: "kebab-case"` discriminator, and closed sets become enums (`LinkType`, `BackgroundType`, `CtaVariant`, `ImagePositon`).
+- Wire types are `Strapi*` and carry the `__component: "block.x"` literal; client models are the mapped shape with a `type: "kebab-case"` discriminator, and closed sets become enums (`CtaBehavior`, `BackgroundType`, `CtaVariant`, `ImagePositon`).
 - Block keys are always `block.<kebab-case>`, matching Strapi.
 - Comments/log prefixes: `[Strapi] <context>:`, `[pages] Unknown block: …`.
 
@@ -122,11 +122,11 @@ export default defineEventHandler(async (event): Promise<XResponse> => {
 
 ### Rendering links
 
-`mapLink` normalizes everything to `Link`, but `pageToPath()` returns `/{slug}` **without** a locale prefix (the prefixed form is commented out), and a missing page yields `to: "#"`. Components therefore branch on `LinkType` and push interior targets through `localePath()` — that logic lives once in `app/composables/useLinkProps.ts`:
+`mapLink(link, fallbackStyle?)` normalizes `ctaBehavior`/`ctaVariant` to `Link["type"]`/`Link["style"]` and handles the CMS's nullable fields: `ctaBehavior` null ⇒ `internal`, `ctaVariant` null ⇒ the caller's `fallbackStyle`. `pageToPath()` returns `/{slug}` **without** a locale prefix (the prefixed form is commented out), and a missing page yields `to: "#"`. Components therefore branch on `CtaBehavior` and push interior targets through `localePath()` — that logic lives once in `app/composables/useLinkProps.ts`:
 
 ```ts
 const linkProps = useLinkProps(); // (l: Link | null | undefined)
-// EXTERNAL → { href, target, rel }; nội bộ → { to: localePath(l.to) } ("#" giữ nguyên)
+// EXTERNAL → { href, target?, rel? }; nội bộ → { to: localePath(l.to) } ("#" giữ nguyên)
 ```
 
 `Navbar.vue` keeps its own menu-specific variant (children ⇒ `role="button"`), and additionally flattens the per-locale menu index (`flatten` + `documentId` matching) and uses `useSwitchLocalePath()` to find a page's counterpart in the other language.
@@ -137,7 +137,7 @@ Every content block receives the same `background` object; the logic is shared, 
 
 - `useBackground(() => props.background, { defaultOnDark })` → `{ image, onDark, style }`. It only treats `image` as a background when `type === "image"` **and** the CMS media has a `url`, derives the text tone from WCAG relative luminance for `color`, and `defaultOnDark` marks blocks whose default look is already a dark panel (membership = `bg-primary`). Blocks then switch their own tone classes (`membership--dark|light`, `section--dark|light`, `tier--dark|light`).
 - `<BlockBackground :image :dark-side="left|right" />` renders the full-bleed `<img>` + the legibility scrim (flat `bg-dark/55` on mobile, horizontal gradient from `lg`); `dark-side` is the side where the text column sits. Blocks keep `relative overflow-hidden` on their root.
-- CTA styling is intentionally **not** abstracted: each block owns its variants (`ctaVariant` only exists on `simple-section`, and membership/tier use bespoke 48px/52px buttons).
+- CTA styling lives in `app/components/CtaLink.vue`, driven by `Link.style` (`CtaVariant`), so blocks only pass `:link`, `size` (`sm|md|lg`), and `tone` (the surface behind it: `light|dark`). `none` renders plain text with no button, underline, arrow, or hover effect; `solid` is tone-aware (light surface ⇒ `bg-primary`/cream, dark surface ⇒ cream/`text-dark`); `underline`/`outline` use `currentColor` and switch tone too. Blocks need a `tone` because a CMS color/image background can flip `onDark`; membership defaults dark, section can be either. The arrow is CMS-controlled by `Link.withIcon` (`null`/`false` ⇒ no icon), and legacy `solid-dark`/`solid-light` values are normalized to `solid` in `mapLink`.
 
 ### Media and styling
 
@@ -162,6 +162,7 @@ Every content block receives the same `background` object; the logic is shared, 
 | File | Why it matters |
 |---|---|
 |`app/pages/[...slug].vue`|**Only route**: fetches `/api/pages/:slug?locale=`, throws `createError` on failure, then renders each block through a `v-for` of `v-if` branches (`<ClubEvent v-if="block.type === 'club-event'" v-bind="block" />`). Every catch-all URL lands here; there is no `index.vue`, so `/` 302s to `/en` and renders the layout alone.|
+| `app/components/CtaLink.vue` | Single source of CTA styling for content blocks: `CtaVariant` (`solid`, `underline`, `outline`, `none`) + size + surface tone + CMS `withIcon` for the arrow. Accepts a normalized `Link` and handles external targets/`newTab` through `useLinkProps()`. |
 | `app/components/Navbar.vue` (739 lines) | Largest file; owns locale switching, mobile drawer state, dropdown + flattened-menu logic, and the two header states (see below). Read before touching navigation. |
 | `app/components/Footer.vue` | Reference implementation of the all-locales fetch pattern and link rendering. |
 | `app/components/Gallery.vue` | Reusable photo gallery: ảnh lớn + thumbnail + modal slideshow toàn màn hình (←/→/Esc, focus trap), ảnh tự chuyển mỗi 3s (`useGallery`, tạm dừng khi hover/focus/mở modal). Modal responsive: desktop mosaic theo tỉ lệ ảnh (ảnh ngang chiếm cả hàng, ảnh dọc/vuông đứng cạnh nhau), mobile là carousel scroll-snap một ảnh với ảnh kề lộ nửa hai bên + thumbnail căn giữa. Bấm ảnh trong modal mở viewer full màn hình (arrows/Esc, focus trả về đúng ảnh). Dùng bởi `PrivateEvent.vue`; `variant="bento"` ẩn thumbnail/nav, phủ kín khung và hiện badge +N cho các bento của `WellnessAndLeisure.vue`. Nhận `images: Media[]`. |

@@ -3,7 +3,6 @@ import BlockBackground from "~/components/blocks/BlockBackground.vue";
 import { type PricingTier, type Tier } from "../../../types";
 
 const props = defineProps<Partial<Tier>>();
-const linkProps = useLinkProps();
 const { locale } = useI18n();
 
 const {
@@ -71,46 +70,16 @@ const formatPrice = (t: PricingTier) => {
         v-if="props.primaryCta?.label || props.secondaryCta?.label"
         class="tier-actions"
       >
-        <NuxtLink
-          v-if="props.primaryCta?.label"
-          class="tier-cta tier-cta--primary"
-          v-bind="linkProps(props.primaryCta)"
-        >
-          {{ props.primaryCta.label }}
-          <svg
-            class="tier-cta-arrow"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M5 12h14" />
-            <path d="M13 6l6 6-6 6" />
-          </svg>
-        </NuxtLink>
-        <NuxtLink
-          v-if="props.secondaryCta?.label"
-          class="tier-cta tier-cta--secondary"
-          v-bind="linkProps(props.secondaryCta)"
-        >
-          {{ props.secondaryCta.label }}
-          <svg
-            class="tier-cta-arrow"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M5 12h14" />
-            <path d="M13 6l6 6-6 6" />
-          </svg>
-        </NuxtLink>
+        <CtaLink
+          :link="props.primaryCta"
+          size="lg"
+          :tone="onDark ? 'dark' : 'light'"
+        />
+        <CtaLink
+          :link="props.secondaryCta"
+          size="lg"
+          :tone="onDark ? 'dark' : 'light'"
+        />
       </div>
     </div>
   </section>
@@ -182,23 +151,7 @@ const formatPrice = (t: PricingTier) => {
   @apply text-[15px] leading-[1.55] text-warm-900;
 }
 
-/* === CTA: cao 52px như design (Section/Hero dùng 48px) === */
 .tier-actions {
   @apply flex flex-wrap items-center gap-6;
-}
-.tier-cta {
-  @apply inline-flex h-[52px] items-center gap-2.5 px-[30px] text-[15px] font-medium tracking-wide;
-}
-.tier-cta--primary {
-  @apply bg-primary text-cream hover:bg-primary-hover hover:text-cream;
-}
-.tier-cta--secondary {
-  @apply border border-primary text-primary hover:bg-primary hover:text-cream;
-}
-.tier-cta-arrow {
-  @apply h-4 w-4 transition-transform duration-300;
-}
-.tier-cta:hover .tier-cta-arrow {
-  @apply translate-x-1;
 }
 </style>

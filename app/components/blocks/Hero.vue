@@ -2,7 +2,6 @@
 import { type Hero } from "../../../types";
 
 const props = defineProps<Partial<Hero>>();
-const linkProps = useLinkProps();
 </script>
 
 <template>
@@ -34,33 +33,8 @@ const linkProps = useLinkProps();
       </p>
 
       <div v-if="props.primaryCta || props.secondaryCta" class="hero-actions">
-        <NuxtLink
-          v-if="props.primaryCta"
-          class="hero-cta hero-cta--primary"
-          v-bind="linkProps(props.primaryCta)"
-        >
-          {{ props.primaryCta.label }}
-          <svg
-            class="hero-cta-arrow"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M5 12h14" />
-            <path d="M13 6l6 6-6 6" />
-          </svg>
-        </NuxtLink>
-        <NuxtLink
-          v-if="props.secondaryCta"
-          class="hero-cta hero-cta--secondary"
-          v-bind="linkProps(props.secondaryCta)"
-        >
-          {{ props.secondaryCta.label }}
-        </NuxtLink>
+        <CtaLink :link="props.primaryCta" tone="dark" />
+        <CtaLink :link="props.secondaryCta" tone="dark" />
       </div>
     </div>
   </section>
@@ -104,23 +78,6 @@ const linkProps = useLinkProps();
 }
 .hero-actions {
   @apply mt-2 flex flex-wrap items-center gap-8;
-}
-.hero-cta {
-  @apply inline-flex h-12 items-center gap-2.5 text-[17px] font-medium tracking-wide;
-}
-/* CTA chính: nền kem, chữ nâu, mũi tên trượt nhẹ khi hover */
-.hero-cta--primary {
-  @apply bg-cream px-[26px] text-dark hover:bg-warm-400 hover:text-dark;
-}
-.hero-cta-arrow {
-  @apply h-4 w-4 transition-transform duration-300;
-}
-.hero-cta--primary:hover .hero-cta-arrow {
-  @apply translate-x-1;
-}
-/* CTA phụ: chỉ chữ + gạch chân, cùng chiều cao với CTA chính */
-.hero-cta--secondary {
-  @apply border-b border-current px-1 text-cream hover:text-cream;
 }
 
 /* === Chú thích ảnh === */

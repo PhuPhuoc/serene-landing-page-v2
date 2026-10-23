@@ -9,17 +9,26 @@ export type Media = {
 };
 
 // Link
-export enum LinkType {
+export enum CtaBehavior {
   INTERNAL = "internal",
   EXTERNAL = "external",
   MODAL = "modal",
+}
+
+export enum CtaVariant {
+  SOLID = "solid",
+  UNDERLINE = "underline",
+  OUTLINE = "outline",
+  NONE = "none",
 }
 
 export type Link = {
   id: number;
   documentId: string;
   label: string;
-  type: LinkType;
+  type: CtaBehavior;
+  style: CtaVariant;
+  withIcon?: boolean;
   to?: string;
   newTab?: boolean;
   modalKey?: string;
@@ -57,11 +66,6 @@ export type Background = {
 export enum ImagePositon {
   LEFT = "left",
   RIGHT = "right",
-}
-
-export enum CtaVariant {
-  SOLID_DARK = "solid-dark",
-  SOLID_LIGHT = "solid-light",
 }
 
 // Blocks
@@ -104,7 +108,6 @@ export type SimpleSection = {
   imageCaption?: string;
   imagePosition: ImagePositon;
   cta: Link;
-  ctaVariant: CtaVariant;
   background: Background | null;
 };
 
@@ -191,17 +194,11 @@ export type PrivateEvent = {
   background: Background | null;
 };
 
-export enum CTAStyle {
-  BUTTON = "button",
-  LINK = "link",
-}
-
 export type Card = {
   id: number;
   heading: string;
   description: string;
   cta: Link;
-  ctaStyle: CTAStyle;
   image?: Media | null;
   imageCaption?: string | "";
 };

@@ -3,7 +3,6 @@ import BlockBackground from "~/components/blocks/BlockBackground.vue";
 import { type Membership } from "../../../types";
 
 const props = defineProps<Partial<Membership>>();
-const linkProps = useLinkProps();
 
 // Nền "default" của block này là panel nâu (design) nên mặc định là tone tối
 const {
@@ -40,33 +39,14 @@ const features = computed(() => props.features ?? []);
           v-if="props.primaryCta?.label || props.secondaryCta?.label"
           class="membership-actions"
         >
-          <NuxtLink
-            v-if="props.primaryCta?.label"
-            class="membership-cta membership-cta--primary"
-            v-bind="linkProps(props.primaryCta)"
-          >
-            {{ props.primaryCta.label }}
-            <svg
-              class="membership-cta-arrow"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M5 12h14" />
-              <path d="M13 6l6 6-6 6" />
-            </svg>
-          </NuxtLink>
-          <NuxtLink
-            v-if="props.secondaryCta?.label"
-            class="membership-cta membership-cta--secondary"
-            v-bind="linkProps(props.secondaryCta)"
-          >
-            {{ props.secondaryCta.label }}
-          </NuxtLink>
+          <CtaLink
+            :link="props.primaryCta"
+            :tone="onDark ? 'dark' : 'light'"
+          />
+          <CtaLink
+            :link="props.secondaryCta"
+            :tone="onDark ? 'dark' : 'light'"
+          />
         </div>
       </div>
 
@@ -120,15 +100,6 @@ const features = computed(() => props.features ?? []);
 }
 .membership-actions {
   @apply mt-2 flex flex-wrap items-center gap-x-7 gap-y-4;
-}
-.membership-cta {
-  @apply inline-flex h-12 items-center gap-2.5 text-[15px] font-medium tracking-wide;
-}
-.membership-cta-arrow {
-  @apply h-4 w-4 transition-transform duration-300;
-}
-.membership-cta:hover .membership-cta-arrow {
-  @apply translate-x-1;
 }
 
 /* === Đặc quyền: gạch đầu mỗi mục, 2 cột từ sm === */
@@ -184,17 +155,4 @@ const features = computed(() => props.features ?? []);
   @apply text-warm-400;
 }
 
-/* === CTA: nút đặc + nút chỉ chữ, màu đảo theo tone === */
-.membership--light .membership-cta--primary {
-  @apply bg-primary px-[26px] text-cream hover:bg-primary-hover hover:text-cream;
-}
-.membership--dark .membership-cta--primary {
-  @apply bg-cream px-[26px] text-dark hover:bg-warm-400 hover:text-dark;
-}
-.membership--light .membership-cta--secondary {
-  @apply border-b border-current px-1 text-primary-hover hover:text-primary;
-}
-.membership--dark .membership-cta--secondary {
-  @apply border-b border-current px-1 text-cream hover:text-warm-400;
-}
 </style>

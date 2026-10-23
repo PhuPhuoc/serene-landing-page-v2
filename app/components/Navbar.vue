@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LinkType } from "../../types";
+import { CtaBehavior } from "../../types";
 
 // locale: ngôn ngữ hiện tại (ví dụ "en") | locales: danh sách ngôn ngữ khai báo trong nuxt.config
 const { locale, locales } = useI18n();
@@ -44,7 +44,7 @@ const navItem = computed(() => navs.value?.[locale.value]);
 // Mục menu đầu tiên có link thật (bỏ qua "#" và mục cha chỉ có children)
 const firstNavPath = computed(() => {
   const first = navItem.value?.menuItems.find(
-    (m) => m.to && m.to !== "#" && m.type !== LinkType.EXTERNAL,
+    (m) => m.to && m.to !== "#" && m.type !== CtaBehavior.EXTERNAL,
   );
   return first?.to; // ví dụ "/the-club" (en) hoặc "/ve-serene" (vi)
 });
@@ -241,7 +241,7 @@ watch(menuOpen, (open) => {
 // Tạo props cho từng link trong menu
 const linkProps = (l: MenuItem) => {
   const hasChildren = l.children && l.children.length > 0 ? true : false;
-  const isExternal = l.type === LinkType.EXTERNAL;
+  const isExternal = l.type === CtaBehavior.EXTERNAL;
 
   if (hasChildren) {
     return {

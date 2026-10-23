@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import BlockBackground from "~/components/blocks/BlockBackground.vue";
-import { CTAStyle, type Card, type WineAndDine } from "../../../types";
+import { type Card, type WineAndDine } from "../../../types";
 
 const props = defineProps<Partial<WineAndDine>>();
-const linkProps = useLinkProps();
 
 // === Nền: 3 dạng default | color | image (logic dùng chung: useBackground) ===
 const {
@@ -19,9 +18,6 @@ const venues = computed(() => props.venues ?? []);
 // bỏ trống thì ghép từ tên địa điểm để khung ảnh luôn có nhãn như design.
 const captionFor = (card: Card) =>
   card.imageCaption || (card.heading ? `Photo · ${card.heading}` : "");
-
-// Kiểu CTA do CMS chọn: button = nút đặc 48px, link = chữ có gạch chân + mũi tên
-const isButton = (card: Card) => card.ctaStyle === CTAStyle.BUTTON;
 </script>
 
 <template>
@@ -103,30 +99,12 @@ const isButton = (card: Card) => card.ctaStyle === CTAStyle.BUTTON;
               </p>
             </div>
 
-            <NuxtLink
-              v-if="card.cta?.label"
-              class="wine-dine-cta"
-              :class="
-                isButton(card) ? 'wine-dine-cta--button' : 'wine-dine-cta--link'
-              "
-              v-bind="linkProps(card.cta)"
-            >
-              {{ card.cta.label }}
-              <svg
-                v-if="!isButton(card)"
-                class="wine-dine-cta-arrow"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M5 12h14" />
-                <path d="M13 6l6 6-6 6" />
-              </svg>
-            </NuxtLink>
+            <CtaLink
+              :link="card.cta"
+              size="sm"
+              :tone="onDark ? 'dark' : 'light'"
+              class="self-start"
+            />
           </div>
         </article>
       </div>
@@ -241,23 +219,6 @@ const isButton = (card: Card) => card.ctaStyle === CTAStyle.BUTTON;
   @apply max-w-[46ch] text-base leading-[1.6];
 }
 
-/* === CTA: nút đặc 48px (button) hoặc link gạch chân 40px (link) === */
-.wine-dine-cta {
-  @apply inline-flex shrink-0 items-center gap-2.5 self-start text-[15px] font-medium tracking-wide transition-colors;
-}
-.wine-dine-cta--button {
-  @apply h-12 justify-center px-[26px];
-}
-.wine-dine-cta--link {
-  @apply min-h-9 border-b border-current pb-1.5;
-}
-.wine-dine-cta-arrow {
-  @apply h-4 w-4 transition-transform duration-300;
-}
-.wine-dine-cta:hover .wine-dine-cta-arrow {
-  @apply translate-x-1;
-}
-
 /* === Màu chữ theo tone nền === */
 .wine-dine--light .wine-dine-eyebrow {
   @apply text-primary;
@@ -269,12 +230,6 @@ const isButton = (card: Card) => card.ctaStyle === CTAStyle.BUTTON;
 .wine-dine--light .wine-dine-desc {
   @apply text-warm-900;
 }
-.wine-dine--light .wine-dine-cta--button {
-  @apply bg-primary text-cream hover:bg-primary-hover hover:text-cream;
-}
-.wine-dine--light .wine-dine-cta--link {
-  @apply text-primary hover:text-primary-hover;
-}
 
 .wine-dine--dark .wine-dine-eyebrow {
   @apply text-warm-500;
@@ -285,11 +240,5 @@ const isButton = (card: Card) => card.ctaStyle === CTAStyle.BUTTON;
 }
 .wine-dine--dark .wine-dine-desc {
   @apply text-warm-400;
-}
-.wine-dine--dark .wine-dine-cta--button {
-  @apply bg-cream text-dark hover:bg-warm-400 hover:text-dark;
-}
-.wine-dine--dark .wine-dine-cta--link {
-  @apply text-cream hover:text-warm-400;
 }
 </style>

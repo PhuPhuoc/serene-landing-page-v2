@@ -5,7 +5,7 @@
 export {
   type Link,
   type Media,
-  LinkType,
+  CtaBehavior,
   type MenuItem,
   type Tag,
   type DayMoment,

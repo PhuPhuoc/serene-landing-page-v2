@@ -1,12 +1,15 @@
-import { CTAStyle } from "~~/types";
 import {
-  StrapiCTAStyle,
   type StrapiBento,
   type StrapiCard,
   type StrapiFeature,
   type StrapiPricingTier,
 } from "../types/strapi";
-import { mapBackground, mapLink, mapMedia } from "./mapper";
+import {
+  CtaVariant,
+  mapBackground,
+  mapLink,
+  mapMedia,
+} from "./mapper";
 
 // server/utils/blocks.ts
 type BlockDef<T> = {
@@ -29,8 +32,12 @@ export const blockRegistry = {
       subheadline: b.subheadline,
       backgroundImage: mapMedia(b.backgroundImage, strapiUrl),
       imageCaption: b.imageCaption,
-      primaryCta: b.primaryCta ? mapLink(b.primaryCta) : null,
-      secondaryCta: b.secondaryCta ? mapLink(b.secondaryCta) : null,
+      primaryCta: b.primaryCta
+        ? mapLink(b.primaryCta, CtaVariant.SOLID)
+        : null,
+      secondaryCta: b.secondaryCta
+        ? mapLink(b.secondaryCta, CtaVariant.UNDERLINE)
+        : null,
     }),
   },
 
@@ -66,7 +73,7 @@ export const blockRegistry = {
         title: t.title,
         description: t.description,
         image: t.image ? mapMedia(t.image, strapiUrl) : null,
-        cta: mapLink(t.cta),
+        cta: mapLink(t.cta, CtaVariant.UNDERLINE),
       })),
     }),
   },
@@ -86,8 +93,7 @@ export const blockRegistry = {
       image: b.image ? mapMedia(b.image, strapiURL) : null,
       imageCaption: b.imageCaption,
       imagePosition: b.imagePosition,
-      cta: mapLink(b.cta),
-      ctaVariant: b.ctaVariant,
+      cta: mapLink(b.cta, CtaVariant.SOLID),
       background: mapBackground(b.background, strapiURL),
     }),
   },
@@ -107,7 +113,9 @@ export const blockRegistry = {
       zaloUrl: b.zaloUrl,
       email: b.email,
       note: b.note,
-      directionsCta: b.directionsCta ? mapLink(b.directionsCta) : null,
+      directionsCta: b.directionsCta
+        ? mapLink(b.directionsCta, CtaVariant.UNDERLINE)
+        : null,
       pinTitle: b.pinTitle,
       pinSubtitle: b.pinSubtitle,
       latitude: b.latitude,
@@ -133,8 +141,8 @@ export const blockRegistry = {
       eyebrow: b.eyebrow,
       heading: b.heading,
       description: b.description,
-      primaryCta: mapLink(b.primaryCta),
-      secondaryCta: mapLink(b.secondaryCta),
+      primaryCta: mapLink(b.primaryCta, CtaVariant.SOLID),
+      secondaryCta: mapLink(b.secondaryCta, CtaVariant.UNDERLINE),
       features: (b.features ?? []).map((f: StrapiFeature) => ({
         id: f.id,
         title: f.title,
@@ -157,8 +165,8 @@ export const blockRegistry = {
       eyebrow: b.eyebrow,
       heading: b.heading,
       note: b.note,
-      primaryCta: mapLink(b.primaryCta),
-      secondaryCta: mapLink(b.secondaryCta),
+      primaryCta: mapLink(b.primaryCta, CtaVariant.SOLID),
+      secondaryCta: mapLink(b.secondaryCta, CtaVariant.UNDERLINE),
       tiers: (b.tiers ?? []).map((t: StrapiPricingTier) => ({
         id: t.id,
         name: t.name,
@@ -184,8 +192,8 @@ export const blockRegistry = {
       heading: b.heading,
       note: b.note,
       limit: b.limit,
-      primaryCta: mapLink(b.primaryCta),
-      secondaryCta: mapLink(b.secondaryCta),
+      primaryCta: mapLink(b.primaryCta, CtaVariant.SOLID),
+      secondaryCta: mapLink(b.secondaryCta, CtaVariant.UNDERLINE),
       background: mapBackground(b.background, strapiURL),
     }),
   },
@@ -202,8 +210,8 @@ export const blockRegistry = {
       eyebrow: b.eyebrow,
       heading: b.heading,
       description: b.description,
-      primaryCta: mapLink(b.primaryCta),
-      secondaryCta: mapLink(b.secondaryCta),
+      primaryCta: mapLink(b.primaryCta, CtaVariant.SOLID),
+      secondaryCta: mapLink(b.secondaryCta, CtaVariant.UNDERLINE),
       background: mapBackground(b.background, strapiURL),
     }),
   },
@@ -227,11 +235,7 @@ export const blockRegistry = {
         id: t.id,
         heading: t.heading,
         description: t.description,
-        cta: mapLink(t.cta),
-        ctaStyle:
-          t.ctaStyle === StrapiCTAStyle.BUTTON
-            ? CTAStyle.BUTTON
-            : CTAStyle.LINK,
+        cta: mapLink(t.cta, CtaVariant.UNDERLINE),
         image: t.image ? mapMedia(t.image, strapiURL) : null,
         imageCaption: t.imageCaption ? t.imageCaption : "",
       })),

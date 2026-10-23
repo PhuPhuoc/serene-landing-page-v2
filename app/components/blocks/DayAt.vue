@@ -2,7 +2,6 @@
 import { type DayAt } from "../../../types";
 
 const props = defineProps<Partial<DayAt>>();
-const linkProps = useLinkProps();
 
 // Id duy nhất cho cặp tab / tabpanel (tránh trùng khi 2 block cùng nằm 1 trang)
 const uid = useId();
@@ -107,26 +106,7 @@ const active = computed(() => moments.value[activeIndex.value] ?? null);
               {{ active.description }}
             </p>
 
-            <NuxtLink
-              v-if="active.cta?.label"
-              class="day-at-card-cta"
-              v-bind="linkProps(active.cta)"
-            >
-              {{ active.cta.label }}
-              <svg
-                class="day-at-card-arrow"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M5 12h14" />
-                <path d="M13 6l6 6-6 6" />
-              </svg>
-            </NuxtLink>
+            <CtaLink :link="active.cta" size="sm" tone="light" />
           </div>
         </div>
       </div>
@@ -225,15 +205,5 @@ const active = computed(() => moments.value[activeIndex.value] ?? null);
 /* mô tả: 17px trong design +2px = 19px (ngoài thang token) */
 .day-at-card-body {
   @apply text-[19px] leading-[1.55] text-dark;
-}
-/* cta: màu link primary → primary-hover do main.css, mũi tên trượt nhẹ khi hover */
-.day-at-card-cta {
-  @apply inline-flex items-center gap-2 text-sm font-medium tracking-wide;
-}
-.day-at-card-arrow {
-  @apply h-4 w-4 transition-transform duration-300;
-}
-.day-at-card-cta:hover .day-at-card-arrow {
-  @apply translate-x-1;
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LinkType, type Link } from "../../types";
+import { CtaBehavior, type Link } from "../../types";
 
 const { locale, locales } = useI18n();
 const localePath = useLocalePath();
@@ -24,7 +24,7 @@ const footer = computed(() => footers.value?.[locale.value]);
 
 const NuxtLinkComp = resolveComponent("NuxtLink");
 const linkTag = (l: Link) =>
-  l.type === LinkType.EXTERNAL ? "a" : NuxtLinkComp;
+  l.type === CtaBehavior.EXTERNAL ? "a" : NuxtLinkComp;
 
 const linkProps = useLinkProps();
 </script>

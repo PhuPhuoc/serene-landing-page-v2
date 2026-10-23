@@ -3,7 +3,8 @@ import {
   type Background,
   BackgroundType,
   type Link,
-  LinkType,
+  CtaBehavior,
+  CtaVariant,
   type Media,
   type MenuItem,
 } from "../types/blocks";
@@ -11,13 +12,15 @@ import type {
   StrapiMedia,
   StrapiNavItem,
   StrapiLink,
+  StrapiCtaBehavior,
+  StrapiCtaVariant,
   StrapiPageRef,
   StrapiBackground,
 } from "../types/strapi";
 
 // Re-export for convenience
 export type { Media, Link, MenuItem };
-export { LinkType };
+export { CtaBehavior, CtaVariant };
 
 export function toAbsoluteMediaUrl(
   strapiDomainUrl: string,
@@ -48,51 +51,83 @@ function pageToPath(page: StrapiPageRef | null): string {
   return `/${page.slug}`;
 }
 
-export function mapLink(link: StrapiLink | null | undefined): Link {
+function mapCtaBehavior(
+  value: StrapiCtaBehavior | null | undefined,
+): CtaBehavior {
+  switch (value) {
+    case "external":
+      return CtaBehavior.EXTERNAL;
+    case "modal":
+      return CtaBehavior.MODAL;
+    default:
+      return CtaBehavior.INTERNAL;
+  }
+}
+
+function mapCtaVariant(
+  value: StrapiCtaVariant | null | undefined,
+  fallback: CtaVariant,
+): CtaVariant {
+  switch (value) {
+    case "solid":
+    case "solid-dark":
+    case "solid-light":
+      // solid-dark/solid-light là giá trị cũ: màu đã do `tone` của block quyết
+      // định nên cả hai gom về một variant duy nhất.
+      return CtaVariant.SOLID;
+    case "underline":
+      return CtaVariant.UNDERLINE;
+    case "outline":
+      return CtaVariant.OUTLINE;
+    case "none":
+      return CtaVariant.NONE;
+    default:
+      // CMS cũ chưa nhập ctaVariant (null) → dùng kiểu mặc định của từng chỗ.
+      return fallback;
+  }
+}
+
+export function mapLink(
+  link: StrapiLink | null | undefined,
+  fallbackStyle: CtaVariant = CtaVariant.NONE,
+): Link {
+  const type = mapCtaBehavior(link?.ctaBehavior);
+  const style = mapCtaVariant(link?.ctaVariant, fallbackStyle);
+
   if (!link) {
     return {
       id: -1,
       documentId: "",
       label: "",
-      type: LinkType.INTERNAL,
+      type,
+      style,
+      withIcon: false,
     };
   }
 
-  let type: LinkType;
-  switch (link.type) {
-    case "internal": {
-      type = LinkType.INTERNAL;
-      break;
-    }
-    case "external": {
-      type = LinkType.EXTERNAL;
-      break;
-    }
-    case "modal": {
-      type = LinkType.MODAL;
-      break;
-    }
+  // Strapi dùng `ctaBehavior`/`ctaVariant`, client giữ `type`/`style` để
+  // không phải sửa toàn bộ component đang đọc Link.
+  const base = {
+    id: link.id,
+    documentId: link.page?.documentId ?? "",
+    label: link.label,
+    type,
+    style,
+    withIcon: !!link.withIcon,
+  };
+
+  if (type === CtaBehavior.MODAL) {
+    return { ...base, modalKey: link.modalKey ?? undefined };
   }
 
-  if (type === LinkType.MODAL) {
-    return {
-      id: link.id,
-      documentId: link.page?.documentId ?? "",
-      label: link.label,
-      type: type,
-      modalKey: link.modalKey,
-    };
-  } else {
-    return {
-      id: link.id,
-      documentId: link.page?.documentId ?? "",
-      label: link.label,
-      type: type,
-      newTab: link.openInNewTab,
-      to:
-        type === LinkType.EXTERNAL ? (link.url ?? "#") : pageToPath(link.page),
-    };
-  }
+  return {
+    ...base,
+    newTab: !!link.openInNewTab,
+    to:
+      type === CtaBehavior.EXTERNAL
+        ? link.url || "#"
+        : pageToPath(link.page),
+  };
 }
 
 export function mapBackground(
@@ -128,6 +163,6 @@ export function mapBackground(
 export function mapMenuItem(item: StrapiNavItem): MenuItem {
   return {
     ...mapLink(item.link), // Làm phẳng object (lấy tất cả prop của item.link, bỏ vào Link)
-    children: (item.children ?? []).map(mapLink),
+    children: (item.children ?? []).map((child) => mapLink(child)),
   };
 }

@@ -1,12 +1,7 @@
 <script setup lang="ts">
-import { LinkType, type Visit } from "../../../types";
+import { CtaBehavior, type Link, type Visit } from "../../../types";
 
 const props = defineProps<Partial<Visit>>();
-
-// Lấy component NuxtLink thật để dùng cho <component :is="...">
-const NuxtLinkComp = resolveComponent("NuxtLink");
-
-const linkProps = useLinkProps();
 
 // Toạ độ CMS → "10.75,106.73": dùng cho bản đồ / nút chỉ đường khi Strapi
 // chưa nhập sẵn link, tránh để component phụ thuộc vào mapEmbedUrl
@@ -26,30 +21,20 @@ const mapSrc = computed(() => {
 });
 
 // CTA "Get directions": link nội bộ đi qua localePath như mọi block khác;
-// khi CMS mới để "#" thì mở Google Maps theo toạ độ để nút không chết
-const directions = computed(() => {
+// khi CMS mới để "#" thì mở Google Maps theo toạ độ để nút không chết.
+const directions = computed<Link | null>(() => {
   const cta = props.directionsCta;
   if (!cta?.label) return null;
 
   const to = cta.to ?? "";
-  if (to && to !== "#") {
-    return {
-      tag: cta.type === LinkType.EXTERNAL ? ("a" as const) : NuxtLinkComp,
-      attrs: linkProps(cta),
-    };
-  }
+  if (to && to !== "#") return cta;
+  if (!coords.value) return cta;
 
   return {
-    tag: "a" as const,
-    attrs: coords.value
-      ? {
-          href:
-            "https://www.google.com/maps/dir/?api=1&destination=" +
-            coords.value,
-          target: "_blank",
-          rel: "noopener noreferrer",
-        }
-      : { href: "#" },
+    ...cta,
+    type: CtaBehavior.EXTERNAL,
+    to: `https://www.google.com/maps/dir/?api=1&destination=${coords.value}`,
+    newTab: true,
   };
 });
 </script>
@@ -132,28 +117,13 @@ const directions = computed(() => {
           <p v-if="props.note">{{ props.note }}</p>
         </div>
 
-        <!-- CTA chỉ đường: gạch chân theo chiều cao chữ, mũi tên trượt khi hover -->
-        <component
-          :is="directions.tag"
+        <!-- CTA chỉ đường -->
+        <CtaLink
           v-if="directions"
-          class="visit-directions"
-          v-bind="directions.attrs"
-        >
-          {{ props.directionsCta?.label }}
-          <svg
-            class="visit-directions-arrow"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M5 12h14" />
-            <path d="M13 6l6 6-6 6" />
-          </svg>
-        </component>
+          :link="directions"
+          size="sm"
+          tone="light"
+        />
 
         <!-- Newsletter: ngăn cách bằng đường kẻ mảnh, nằm dưới CTA.
              CMS chưa có endpoint đăng ký nên form dừng ở mức UI: `prevent`
@@ -263,17 +233,6 @@ const directions = computed(() => {
 }
 .visit-contact {
   @apply text-warm-900;
-}
-
-/* CTA chỉ đường: cao 40px, gạch chân theo chiều dài chữ (border-current) */
-.visit-directions {
-  @apply inline-flex h-10 items-center gap-2.5 self-start border-b border-current px-1 text-[17px] font-medium tracking-wide;
-}
-.visit-directions-arrow {
-  @apply h-4 w-4 transition-transform duration-300;
-}
-.visit-directions:hover .visit-directions-arrow {
-  @apply translate-x-1;
 }
 
 /* === Newsletter ===

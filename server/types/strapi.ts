@@ -37,16 +37,26 @@ export type StrapiPageRef = {
 };
 
 // Link
-export type StrapiLinkType = "internal" | "external" | "modal";
+export type StrapiCtaBehavior = "internal" | "external" | "modal";
+export type StrapiCtaVariant =
+  | "solid"
+  // Legacy: schema cũ từng tách solid-dark/solid-light; mapper gom về "solid".
+  | "solid-dark"
+  | "solid-light"
+  | "underline"
+  | "outline"
+  | "none";
 export type StrapiLinkModalKey = "contactUs" | "joinMembership";
 
 export type StrapiLink = {
   id: number;
   label: string;
-  type: StrapiLinkType;
-  modalKey?: StrapiLinkModalKey;
-  url: string;
-  openInNewTab: boolean;
+  ctaVariant?: StrapiCtaVariant | null;
+  ctaBehavior?: StrapiCtaBehavior | null;
+  withIcon?: boolean | null;
+  modalKey?: StrapiLinkModalKey | null;
+  url?: string | null;
+  openInNewTab?: boolean | null;
   page: StrapiPageRef | null;
 };
 
@@ -138,7 +148,6 @@ export type StrapiBackground = {
 };
 
 export type StrapiImagePositon = "left" | "right";
-export type StrapiCtaVariant = "solid-dark" | "solid-light";
 export type StrapiSimpleSection = {
   __component: "block.simple-section";
   id: number;
@@ -149,7 +158,6 @@ export type StrapiSimpleSection = {
   imageCaption: string;
   imagePosition: StrapiImagePositon;
   cta: StrapiLink;
-  ctaVariant: StrapiCtaVariant;
   background: StrapiBackground;
 };
 
@@ -213,7 +221,7 @@ export type StrapiTier = {
 };
 
 export type StrapiClubEvent = {
-  __component: "block.club-event";
+  __component: "block.club-events";
   id: number;
   eyebrow: string;
   heading: string;
@@ -274,17 +282,11 @@ export type StrapiPrivateEvent = {
   background?: StrapiBackground | null;
 };
 
-export enum StrapiCTAStyle {
-  BUTTON = "button",
-  LINK = "link",
-}
-
 export type StrapiCard = {
   id: number;
   heading: string;
   description: string;
   cta: StrapiLink;
-  ctaStyle: StrapiCTAStyle;
   image?: StrapiMedia | null;
   imageCaption?: string | "";
 };
