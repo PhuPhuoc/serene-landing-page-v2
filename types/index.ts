@@ -251,6 +251,18 @@ export type ArtAndCulture = {
   background: Background | null;
 };
 
+export type Stay = {
+  type: "stay";
+  id: number;
+  eyebrow: string;
+  heading: string;
+  description?: string | null;
+  includesTitle?: string | null;
+  yourStayLabel?: string | null;
+  cta: Link;
+  background: Background | null;
+};
+
 // Main Type
 export type PageBlock =
   | Hero
@@ -264,7 +276,8 @@ export type PageBlock =
   | PrivateEvent
   | WineAndDine
   | WellnessAndLeisure
-  | ArtAndCulture;
+  | ArtAndCulture
+  | Stay;
 
 export type PageReponse = {
   title: string;
@@ -307,4 +320,20 @@ export type EventVenue = {
 
 export type EventVenuesResponse = {
   venues: EventVenue[];
+};
+
+export type Residence = {
+  id: number;
+  name: string;
+  shortName: string;
+  description: string;
+  gallery: Media[];
+  size: number;
+  bed: string;
+  view: string;
+  includes: string[];
+};
+
+export type ResidenceResponse = {
+  residences: Residence[];
 };

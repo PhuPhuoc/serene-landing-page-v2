@@ -296,6 +296,24 @@ export const blockRegistry = {
       background: mapBackground(b.background, strapiURL),
     }),
   },
+
+  "block.stay": {
+    populate: {
+      cta: { populate: ["page"] },
+      background: { populate: { image: true } },
+    },
+    map: (b, strapiURL) => ({
+      type: "stay" as const,
+      id: b.id,
+      eyebrow: b.eyebrow,
+      heading: b.heading,
+      description: b.description,
+      includesTitle: b.includesTitle,
+      yourStayLabel: b.yourStayLabel,
+      cta: mapLink(b.cta),
+      background: mapBackground(b.background, strapiURL),
+    }),
+  },
 } satisfies Record<string, BlockDef<unknown>>;
 
 export const blocksPopulate = {

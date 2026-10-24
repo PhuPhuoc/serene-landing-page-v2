@@ -339,6 +339,18 @@ export type StrapiArtAndCulture = {
   background: StrapiBackground | null;
 };
 
+export type Stay = {
+  __component: "block.stay";
+  id: number;
+  eyebrow: string;
+  heading: string;
+  description?: string | null;
+  includesTitle?: string | null;
+  yourStayLabel?: string | null;
+  cta: StrapiLink;
+  background: StrapiBackground | null;
+};
+
 export type StrapiPageBlock =
   | StrapiHero
   | StrapiIntro
@@ -352,3 +364,15 @@ export type StrapiPageBlock =
   | StrapiWindAndDine
   | StrapiWellnessAndLeisure
   | StrapiArtAndCulture;
+
+export type StrapiResidence = {
+  id: number;
+  name: string;
+  shortName: string;
+  description: string;
+  gallery: StrapiMedia[];
+  size: number;
+  bed: string;
+  view: string;
+  includes: { id: number; label: string }[];
+};
