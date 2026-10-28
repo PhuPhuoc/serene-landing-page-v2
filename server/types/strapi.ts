@@ -376,3 +376,19 @@ export type StrapiResidence = {
   view: string;
   includes: { id: number; label: string }[];
 };
+
+// Journal (single type `journal`) — copy cho trang listing
+export type StrapiJournalSortOption = "latest" | "oldest" | "a-z label";
+
+export type StrapiJournal = {
+  id: number;
+  documentId: string;
+  locale: Locale;
+  eyebrow: string;
+  heading: string;
+  searchPlaceholder: string | null;
+  sortLabel: string | null;
+  sortOptions: StrapiJournalSortOption;
+  emptyStateText: string | null;
+  backLinkLabel: string | null;
+};

@@ -337,3 +337,16 @@ export type Residence = {
 export type ResidenceResponse = {
   residences: Residence[];
 };
+
+// Journal listing (single type `journal`) — copy trả về của /api/journal
+export type JournalSortOption = "latest" | "oldest" | "a-z label";
+
+export type JournalPageResponse = {
+  eyebrow: string;
+  heading: string;
+  searchPlaceholder: string | null;
+  sortLabel: string | null;
+  sortOptions: JournalSortOption;
+  emptyStateText: string | null;
+  backLinkLabel: string | null;
+};

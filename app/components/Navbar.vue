@@ -212,6 +212,14 @@ onBeforeUnmount(() => {
 const isActive = (l: MenuItem) =>
   !!l.to && l.to !== "#" && localePath(l.to) === route.path;
 
+// Mục đang active khi path trùng hoặc nằm dưới mục đó
+// (ví dụ /en/journal/<slug> vẫn làm Journal active).
+const isSectionActive = (l?: MenuItem) => {
+  if (!l || !l.to || l.to === "#") return false;
+  if (isActive(l)) return true;
+  return route.path.startsWith(localePath(l.to) + "/");
+};
+
 // Mục "Member's Perks" (parent có children)
 const perksItem = computed(() =>
   navItem.value?.menuItems.find((m) => m.children && m.children.length > 0),
@@ -346,7 +354,17 @@ const linkProps = (l: MenuItem) => {
         <NuxtLink
           v-if="navItem.utilityLink"
           v-bind="linkProps(navItem.utilityLink)"
-          class="nav-utility-link"
+          :class="[
+            'nav-utility-link',
+            {
+              'nav-utility-link--active': isSectionActive(
+                navItem.utilityLink,
+              ),
+            },
+          ]"
+          :aria-current="
+            isSectionActive(navItem.utilityLink) ? 'page' : undefined
+          "
         >
           {{ navItem.utilityLink.label }}
         </NuxtLink>
@@ -549,7 +567,17 @@ const linkProps = (l: MenuItem) => {
           <NuxtLink
             v-if="navItem.utilityLink"
             v-bind="linkProps(navItem.utilityLink)"
-            class="nav-drawer-utility-link"
+            :class="[
+              'nav-drawer-utility-link',
+              {
+                'nav-drawer-utility-link--active': isSectionActive(
+                  navItem.utilityLink,
+                ),
+              },
+            ]"
+            :aria-current="
+              isSectionActive(navItem.utilityLink) ? 'page' : undefined
+            "
           >
             {{ navItem.utilityLink.label }}
           </NuxtLink>
@@ -669,8 +697,14 @@ const linkProps = (l: MenuItem) => {
 .nav-utility-link {
   @apply text-sm tracking-wide transition-colors hover:text-primary-hover;
 }
+.nav-utility-link--active {
+  @apply border-b border-current pb-0.5 font-medium text-primary;
+}
 /* Trên hero: link phụ cũng dùng màu sáng (mặc định là text-primary của <a>) */
 .nav-header--transparent .nav-utility-link {
+  @apply text-cream;
+}
+.nav-header--transparent .nav-utility-link--active {
   @apply text-cream;
 }
 .nav-lang {
@@ -783,6 +817,9 @@ const linkProps = (l: MenuItem) => {
 }
 .nav-drawer-utility-link {
   @apply text-sm text-cream/90 transition-colors hover:text-cream;
+}
+.nav-drawer-utility-link--active {
+  @apply text-cream underline underline-offset-4;
 }
 .nav-drawer-lang {
   @apply flex items-center gap-1.5 text-xs tracking-widest;

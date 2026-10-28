@@ -13,23 +13,20 @@ import WineAndDine from "~/components/blocks/WineAndDine.vue";
 import WellnessAndLeisure from "~/components/blocks/WellnessAndLeisure.vue";
 import ArtAndCulture from "~/components/blocks/ArtAndCulture.vue";
 import Stay from "~/components/blocks/Stay.vue";
-const route = useRoute();
 
-const { locales, defaultLocale } = useI18n();
-
-// Locale lấy từ route.path (không lấy từ useI18n().locale) để đổi cùng nhịp
-// với slug => auto-key của useFetch chỉ đổi 1 lần khi navigate.
-// Danh sách locale codes lấy từ config (tĩnh) nên không phá tính đồng nhịp.
-const localeCodes = computed<string[]>(() =>
-  locales.value.map((l) => (typeof l === "string" ? l : l.code)),
-);
-
-const locale = computed(() => {
-  const first = route.path.split("/").find(Boolean);
-  return first && localeCodes.value.includes(first)
-    ? first
-    : defaultLocale || "en";
+// Catch-all chỉ nhận đúng 1 segment: /en/the-club là Page CMS, còn
+// /en/the-club/extra (và /en/journal/<slug> nếu chưa có route riêng) phải 404
+// thay vì render nhầm page cha.
+definePageMeta({
+  validate(to) {
+    const raw = to.params.slug;
+    const segments = Array.isArray(raw) ? raw : [String(raw ?? "")];
+    return segments.filter(Boolean).length <= 1;
+  },
 });
+
+const route = useRoute();
+const locale = useRouteLocale();
 
 const slug = computed(() => {
   const params = route.params.slug;
