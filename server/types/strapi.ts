@@ -392,3 +392,110 @@ export type StrapiJournal = {
   emptyStateText: string | null;
   backLinkLabel: string | null;
 };
+
+// Authors (collection `authors`)
+export type StrapiAuthor = {
+  id: number;
+  documentId: string;
+  locale: Locale;
+  name: string;
+  slug: string;
+  role?: string | null;
+  bio?: string | null;
+  avatar?: StrapiMedia | null;
+  posts?: StrapiPost[] | null;
+};
+
+// SEO (component `shared.seo`)
+export type StrapiSeo = {
+  id: number;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  ogImage?: StrapiMedia | null;
+  noIndex?: boolean | null;
+};
+
+// Strapi Blocks (rich text)
+export type StrapiRichTextNode = {
+  type: string;
+  text?: string;
+  level?: number;
+  format?: string;
+  url?: string;
+  language?: string;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  strikethrough?: boolean;
+  code?: boolean;
+  image?: StrapiMedia | null;
+  caption?: string | null;
+  children?: StrapiRichTextNode[];
+};
+
+export type StrapiVideoMedia = StrapiMedia & {
+  mime?: string | null;
+};
+
+// Journal post blocks (dynamic zone `journal.*`)
+export type StrapiJournalRichTextBlock = {
+  __component: "journal.rich-text-block";
+  id: number;
+  content: StrapiRichTextNode[];
+  fontSize?: number | null;
+};
+
+export type StrapiJournalImageBlock = {
+  __component: "journal.image-block";
+  id: number;
+  image?: StrapiMedia | null;
+  caption?: string | null;
+};
+
+export type StrapiJournalGalleryBlock = {
+  __component: "journal.gallery-block";
+  id: number;
+  images?: StrapiMedia[] | null;
+  caption?: string | null;
+  layout: "carousel" | "masonry-2" | "masonry-3";
+};
+
+export type StrapiJournalVideoBlock = {
+  __component: "journal.video-block";
+  id: number;
+  video?: StrapiVideoMedia | null;
+  url?: string | null;
+  caption?: string | null;
+  isExternalVideo: boolean;
+};
+
+export type StrapiJournalTwoColumnBlock = {
+  __component: "journal.two-column-block";
+  id: number;
+  image?: StrapiMedia | null;
+  content: StrapiRichTextNode[];
+  imagePosition?: "left" | "right" | null;
+};
+
+export type StrapiJournalBlock =
+  | StrapiJournalRichTextBlock
+  | StrapiJournalImageBlock
+  | StrapiJournalGalleryBlock
+  | StrapiJournalVideoBlock
+  | StrapiJournalTwoColumnBlock;
+
+// Posts (collection `posts`)
+export type StrapiPost = {
+  id: number;
+  documentId: string;
+  locale: Locale;
+  title: string;
+  slug: string;
+  cover?: StrapiMedia | null;
+  coverAlt?: string | null;
+  author?: StrapiAuthor | null;
+  publishedDate?: string | null;
+  blocks?: StrapiJournalBlock[] | null;
+  seo?: StrapiSeo | null;
+  relatedPosts?: StrapiPost[] | null;
+};

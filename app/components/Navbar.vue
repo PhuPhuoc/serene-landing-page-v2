@@ -90,7 +90,14 @@ const localizedPath = (targetCode: string) => {
     return localePath(target.to, targetCode as any);
   }
 
-  // 3. Không tìm thấy (trang không nằm trong menu) thì dùng cách mặc định
+  // 3. Journal post: slug đổi theo ngôn ngữ và Navbar không có data bài viết,
+  // nên về trang danh sách Journal của ngôn ngữ đích thay vì giữ slug (404).
+  if (/^\/(?:journal|tap-chi)\/[^/]+$/.test(pathWithoutLocale.value)) {
+    const journalPath = targetCode === "vi" ? "/tap-chi" : "/journal";
+    return localePath(journalPath, targetCode as any);
+  }
+
+  // 4. Không tìm thấy (trang không nằm trong menu) thì dùng cách mặc định
   return switchLocalePath(targetCode as any);
 };
 

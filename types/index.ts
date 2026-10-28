@@ -350,3 +350,143 @@ export type JournalPageResponse = {
   emptyStateText: string | null;
   backLinkLabel: string | null;
 };
+
+// Journal posts (collection `posts`) — shape trả về của /api/posts
+export type JournalAuthorRef = {
+  documentId: string;
+  name: string;
+  slug: string;
+};
+
+export type JournalAuthor = JournalAuthorRef & {
+  role: string | null;
+  bio: string | null;
+  avatar: Media | null;
+};
+
+export type JournalPostSummary = {
+  id: number;
+  documentId: string;
+  slug: string;
+  title: string;
+  cover: Media | null;
+  coverAlt: string;
+  publishedDate: string | null;
+  author: JournalAuthorRef | null;
+};
+
+export type JournalPostsResponse = {
+  posts: JournalPostSummary[];
+};
+
+// Rich text (Strapi Blocks) đã chuẩn hoá: text node mang mảng marks,
+// list gom về `items`, code gom về `text` để component chỉ cần switch type.
+export type JournalInlineMark =
+  | "bold"
+  | "italic"
+  | "underline"
+  | "strikethrough"
+  | "code";
+
+export type JournalTextNode = {
+  type: "text";
+  text: string;
+  marks: JournalInlineMark[];
+};
+
+export type JournalLinkNode = {
+  type: "link";
+  url: string;
+  children: JournalTextNode[];
+};
+
+export type JournalInlineNode = JournalTextNode | JournalLinkNode;
+
+export type JournalListItem = {
+  children: JournalInlineNode[];
+};
+
+export type JournalRichTextNode =
+  | { type: "paragraph"; children: JournalInlineNode[] }
+  | { type: "heading"; level: 2 | 3 | 4; children: JournalInlineNode[] }
+  | {
+      type: "list";
+      format: "ordered" | "unordered";
+      items: JournalListItem[];
+    }
+  | { type: "quote"; children: JournalInlineNode[] }
+  | { type: "code"; language: string | null; text: string }
+  | { type: "image"; image: Media; caption: string | null };
+
+// Blocks của post (dynamic zone `journal.*`)
+export type JournalRichTextBlock = {
+  type: "rich-text";
+  id: number;
+  nodes: JournalRichTextNode[];
+  fontSize: number | null;
+};
+
+export type JournalImageBlock = {
+  type: "image";
+  id: number;
+  image: Media;
+  caption: string | null;
+};
+
+export type JournalGalleryLayout = "carousel" | "masonry-2" | "masonry-3";
+
+export type JournalGalleryBlock = {
+  type: "gallery";
+  id: number;
+  images: Media[];
+  caption: string | null;
+  layout: JournalGalleryLayout;
+};
+
+export type JournalVideoBlock = {
+  type: "video";
+  id: number;
+  src: string | null;
+  externalUrl: string | null;
+  caption: string | null;
+};
+
+export type JournalTwoColumnBlock = {
+  type: "two-column";
+  id: number;
+  image: Media;
+  nodes: JournalRichTextNode[];
+  imagePosition: "left" | "right";
+};
+
+export type JournalBlock =
+  | JournalRichTextBlock
+  | JournalImageBlock
+  | JournalGalleryBlock
+  | JournalVideoBlock
+  | JournalTwoColumnBlock;
+
+export type JournalSeo = {
+  metaTitle: string | null;
+  metaDescription: string | null;
+  ogImage: Media | null;
+  noIndex: boolean;
+};
+
+export type JournalPost = {
+  id: number;
+  documentId: string;
+  slug: string;
+  title: string;
+  cover: Media | null;
+  coverAlt: string;
+  publishedDate: string | null;
+  author: JournalAuthor | null;
+  seo: JournalSeo | null;
+  blocks: JournalBlock[];
+  relatedPosts: JournalPostSummary[];
+};
+
+export type JournalPostResponse = {
+  post: JournalPost;
+};
