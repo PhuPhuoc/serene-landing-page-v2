@@ -106,7 +106,13 @@ const active = computed(() => moments.value[activeIndex.value] ?? null);
               {{ active.description }}
             </p>
 
-            <CtaLink :link="active.cta" size="sm" tone="light" />
+            <CtaLink
+              :link="active.cta"
+              source="day-at"
+              :block-id="props.id"
+              size="sm"
+              tone="light"
+            />
           </div>
         </div>
       </div>

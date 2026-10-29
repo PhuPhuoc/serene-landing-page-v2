@@ -164,12 +164,16 @@ const hasCtas = computed(
               <CtaLink
                 v-if="exhibition.cta?.label"
                 :link="exhibition.cta"
+                source="art-and-culture"
+                :block-id="props.id"
                 size="md"
                 :tone="onDark ? 'dark' : 'light'"
               />
               <CtaLink
                 v-if="props.cta?.label"
                 :link="props.cta"
+                source="art-and-culture"
+                :block-id="props.id"
                 size="md"
                 :tone="onDark ? 'dark' : 'light'"
               />

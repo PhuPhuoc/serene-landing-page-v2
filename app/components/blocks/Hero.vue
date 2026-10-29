@@ -33,8 +33,18 @@ const props = defineProps<Partial<Hero>>();
       </p>
 
       <div v-if="props.primaryCta || props.secondaryCta" class="hero-actions">
-        <CtaLink :link="props.primaryCta" tone="dark" />
-        <CtaLink :link="props.secondaryCta" tone="dark" />
+        <CtaLink
+          :link="props.primaryCta"
+          source="hero"
+          :block-id="props.id"
+          tone="dark"
+        />
+        <CtaLink
+          :link="props.secondaryCta"
+          source="hero"
+          :block-id="props.id"
+          tone="dark"
+        />
       </div>
     </div>
   </section>

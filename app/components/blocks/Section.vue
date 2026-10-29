@@ -87,6 +87,8 @@ const imageRight = computed(() => props.imagePosition === ImagePositon.RIGHT);
 
         <CtaLink
           :link="props.cta"
+          source="simple-section"
+          :block-id="props.id"
           :tone="onDark ? 'dark' : 'light'"
           class="self-start"
         />

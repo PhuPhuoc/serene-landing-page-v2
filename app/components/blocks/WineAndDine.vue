@@ -101,6 +101,8 @@ const captionFor = (card: Card) =>
 
             <CtaLink
               :link="card.cta"
+              source="wine-and-dine"
+              :block-id="props.id"
               size="sm"
               :tone="onDark ? 'dark' : 'light'"
               class="self-start"

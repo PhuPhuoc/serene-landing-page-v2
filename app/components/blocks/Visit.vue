@@ -121,6 +121,8 @@ const directions = computed<Link | null>(() => {
         <CtaLink
           v-if="directions"
           :link="directions"
+          source="visit"
+          :block-id="props.id"
           size="sm"
           tone="light"
         />

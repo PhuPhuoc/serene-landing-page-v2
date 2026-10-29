@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { CtaBehavior, CtaVariant, type Link } from "../../types";
+import {
+  CtaBehavior,
+  CtaVariant,
+  ModalKey,
+  type CtaSourceArea,
+  type Link,
+} from "../../types";
 
 type CtaSize = "sm" | "md" | "lg";
 // Tone của *nền* phía sau CTA (không phải màu chữ): quyết định màu cho
@@ -11,16 +17,39 @@ const props = withDefaults(
     link?: Link | null;
     size?: CtaSize;
     tone?: CtaTone;
+    // Vị trí CTA, đưa vào payload modal để sale biết khách quan tâm mục nào
+    source: CtaSourceArea;
+    // id block CMS (nếu CTA nằm trong block) để phân biệt các block cùng loại
+    blockId?: number;
   }>(),
   { size: "md", tone: "light" },
 );
 
 const NuxtLinkComp = resolveComponent("NuxtLink");
 const linkProps = useLinkProps();
+const { open: openModal } = useModal();
 
-const tag = computed(() =>
-  props.link?.type === CtaBehavior.EXTERNAL ? "a" : NuxtLinkComp,
+const isModal = computed(() => props.link?.type === CtaBehavior.MODAL);
+
+const tag = computed(() => {
+  if (isModal.value) return "button";
+  return props.link?.type === CtaBehavior.EXTERNAL ? "a" : NuxtLinkComp;
+});
+
+// Modal dùng <button>, không bind href/to; còn lại giữ nguyên link props.
+const bindings = computed(() =>
+  isModal.value ? { type: "button" } : linkProps(props.link),
 );
+
+function onClick() {
+  if (!isModal.value) return;
+
+  openModal(props.link?.modalKey ?? ModalKey.CONTACT_US, {
+    area: props.source,
+    label: props.link?.label ?? "",
+    blockId: props.blockId,
+  });
+}
 
 // `none` = text thường: không nền, viền, gạch chân, mũi tên hay hiệu ứng hover.
 const isPlain = computed(() => props.link?.style === CtaVariant.NONE);
@@ -78,12 +107,13 @@ const showArrow = computed(
   <component
     :is="tag"
     v-if="link?.label"
-    v-bind="linkProps(link)"
+    v-bind="bindings"
     :class="[
       isPlain ? null : 'cta-link',
       variantClass,
       sizeClass,
     ]"
+    @click="onClick"
   >
     <span>{{ link.label }}</span>
     <svg

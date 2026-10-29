@@ -72,11 +72,15 @@ const formatPrice = (t: PricingTier) => {
       >
         <CtaLink
           :link="props.primaryCta"
+          source="tier"
+          :block-id="props.id"
           size="lg"
           :tone="onDark ? 'dark' : 'light'"
         />
         <CtaLink
           :link="props.secondaryCta"
+          source="tier"
+          :block-id="props.id"
           size="lg"
           :tone="onDark ? 'dark' : 'light'"
         />

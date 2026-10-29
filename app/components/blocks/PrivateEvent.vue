@@ -223,10 +223,14 @@ const hasCapacity = computed(() => activeVenue.value?.capacity != null);
       >
         <CtaLink
           :link="props.primaryCta"
+          source="private-event"
+          :block-id="props.id"
           :tone="onDark ? 'dark' : 'light'"
         />
         <CtaLink
           :link="props.secondaryCta"
+          source="private-event"
+          :block-id="props.id"
           size="sm"
           :tone="onDark ? 'dark' : 'light'"
         />

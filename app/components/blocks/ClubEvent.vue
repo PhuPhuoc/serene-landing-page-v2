@@ -244,10 +244,14 @@ const nextLabel = computed(() =>
       >
         <CtaLink
           :link="props.primaryCta"
+          source="club-event"
+          :block-id="props.id"
           :tone="onDark ? 'dark' : 'light'"
         />
         <CtaLink
           :link="props.secondaryCta"
+          source="club-event"
+          :block-id="props.id"
           size="sm"
           :tone="onDark ? 'dark' : 'light'"
         />

@@ -41,10 +41,14 @@ const features = computed(() => props.features ?? []);
         >
           <CtaLink
             :link="props.primaryCta"
+            source="membership"
+            :block-id="props.id"
             :tone="onDark ? 'dark' : 'light'"
           />
           <CtaLink
             :link="props.secondaryCta"
+            source="membership"
+            :block-id="props.id"
             :tone="onDark ? 'dark' : 'light'"
           />
         </div>

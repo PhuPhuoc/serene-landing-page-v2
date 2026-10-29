@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { CtaBehavior } from "../../types";
+import {
+  CtaBehavior,
+  ModalKey,
+  type CtaSourceArea,
+  type Link,
+} from "../../types";
 
 // locale: ngôn ngữ hiện tại (ví dụ "en") | locales: danh sách ngôn ngữ khai báo trong nuxt.config
 const { locale, locales } = useI18n();
@@ -274,6 +279,33 @@ const linkProps = (l: MenuItem) => {
     rel: isExternal ? "noopener noreferrer" : undefined,
   };
 };
+
+// Header CTA có thể là modal (ctaBehavior=modal + modalKey từ CMS): khi đó
+// render <button> thay vì NuxtLink và mở modal kèm vị trí bấm.
+const { open: openModal } = useModal();
+
+const navCtaIsModal = computed(
+  () => navItem.value?.cta?.type === CtaBehavior.MODAL,
+);
+const navCtaTag = computed(() =>
+  navCtaIsModal.value ? "button" : NuxtLinkComp,
+);
+const navCtaBindings = computed(() =>
+  navCtaIsModal.value
+    ? { type: "button" }
+    : linkProps(navItem.value?.cta as MenuItem),
+);
+
+function openNavCta(area: Extract<CtaSourceArea, "navbar" | "navbar-drawer">) {
+  const cta = navItem.value?.cta as Link | undefined;
+  if (!cta || cta.type !== CtaBehavior.MODAL) return;
+
+  if (area === "navbar-drawer") menuOpen.value = false;
+  openModal(cta.modalKey ?? ModalKey.CONTACT_US, {
+    area,
+    label: cta.label,
+  });
+}
 </script>
 
 <template>
@@ -396,13 +428,15 @@ const linkProps = (l: MenuItem) => {
         </div>
 
         <!-- nút CTA -->
-        <NuxtLink
+        <component
+          :is="navCtaTag"
           v-if="navItem.cta"
-          v-bind="linkProps(navItem.cta)"
+          v-bind="navCtaBindings"
           class="nav-cta"
+          @click="openNavCta('navbar')"
         >
           {{ navItem.cta.label }}
-        </NuxtLink>
+        </component>
       </div>
 
       <!-- nút hamburger (mobile) -->
@@ -612,13 +646,15 @@ const linkProps = (l: MenuItem) => {
           </div>
         </div>
 
-        <NuxtLink
+        <component
+          :is="navCtaTag"
           v-if="navItem.cta"
-          v-bind="linkProps(navItem.cta)"
+          v-bind="navCtaBindings"
           class="nav-drawer-cta"
+          @click="openNavCta('navbar-drawer')"
         >
           {{ navItem.cta.label }}
-        </NuxtLink>
+        </component>
       </div>
     </div>
   </header>

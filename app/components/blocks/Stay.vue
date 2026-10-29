@@ -232,6 +232,8 @@ const badgeCount = (r: Residence) => Math.max(0, r.gallery.length - 1);
               <CtaLink
                 v-if="props.cta?.label"
                 :link="props.cta"
+                source="stay"
+                :block-id="props.id"
                 size="sm"
                 tone="light"
                 class="stay-cta"

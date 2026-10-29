@@ -117,6 +117,7 @@ export function mapLink(
   };
 
   if (type === CtaBehavior.MODAL) {
+    // modalKey đã được giới hạn bởi StrapiLinkModalKey, trùng với ModalKey.
     return { ...base, modalKey: link.modalKey ?? undefined };
   }
 

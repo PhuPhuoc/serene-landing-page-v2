@@ -15,6 +15,17 @@ export enum CtaBehavior {
   MODAL = "modal",
 }
 
+// Modal CTA: key khớp giá trị `modalKey` trong Strapi. Dùng const object thay
+// cho enum để giá trị literal (từ CMS) gán thẳng vào type mà không cần cast.
+export const ModalKey = {
+  CONTACT_US: "contactUs",
+  JOIN_MEMBERSHIP: "joinMembership",
+} as const;
+
+export type ModalKey = (typeof ModalKey)[keyof typeof ModalKey];
+
+export const MODAL_KEYS: ModalKey[] = Object.values(ModalKey);
+
 export enum CtaVariant {
   SOLID = "solid",
   UNDERLINE = "underline",
@@ -31,7 +42,7 @@ export type Link = {
   withIcon?: boolean;
   to?: string;
   newTab?: boolean;
-  modalKey?: string;
+  modalKey?: ModalKey;
 };
 
 // Menu item
@@ -262,6 +273,54 @@ export type Stay = {
   cta: Link;
   background: Background | null;
 };
+
+// Modal / enquiry
+// `area` = vị trí CTA trên trang, để team sale biết khách quan tâm mục nào.
+// Mỗi block/CTA mới phải thêm một giá trị vào mảng này (server dùng lại để
+// validate).
+export const CTA_SOURCE_AREAS = [
+  "navbar",
+  "navbar-drawer",
+  "hero",
+  "day-at",
+  "simple-section",
+  "visit",
+  "membership",
+  "tier",
+  "club-event",
+  "private-event",
+  "wine-and-dine",
+  "art-and-culture",
+  "stay",
+] as const;
+
+export type CtaSourceArea = (typeof CTA_SOURCE_AREAS)[number];
+
+// Vị trí khách đang đứng lúc bấm CTA: page (kèm prefix locale) + locale +
+// khu vực + id block (nếu CTA nằm trong block) + nhãn CTA.
+export type ModalSource = {
+  area: CtaSourceArea;
+  label: string;
+  blockId?: number;
+  page: string;
+  locale: string;
+};
+
+// Payload gửi sale (tạm log console, sau này chuyển qua API/email).
+// Validate ở form đảm bảo email hoặc mobile luôn có ít nhất một giá trị.
+export type ModalSubmission = {
+  modalKey: ModalKey;
+  name: string;
+  email: string | null;
+  mobile: string | null;
+  note: string | null;
+  source: ModalSource;
+  submittedAt: string; // ISO 8601
+};
+
+// Payload client gửi lên `/api/enquiry`; server tự gắn `submittedAt` phía
+// server để thời gian không phụ thuộc đồng hồ/múi giờ của khách.
+export type ModalEnquiry = Omit<ModalSubmission, "submittedAt">;
 
 // Main Type
 export type PageBlock =
