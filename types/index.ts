@@ -275,6 +275,14 @@ export type Stay = {
 };
 
 // Modal / enquiry
+// Chống spam form enquiry phía client: tối đa `ENQUIRY_SUBMIT_LIMIT` lần gửi
+// thành công trong `ENQUIRY_SUBMIT_WINDOW_HOURS` giờ. Sau khi đạt giới hạn,
+// khách được gửi lại khi cửa sổ trượt qua mốc của lần gửi cũ nhất.
+export const ENQUIRY_SUBMIT_LIMIT = 3;
+export const ENQUIRY_SUBMIT_WINDOW_HOURS = 24;
+export const ENQUIRY_SUBMIT_WINDOW_MS =
+  ENQUIRY_SUBMIT_WINDOW_HOURS * 60 * 60 * 1000;
+
 // `area` = vị trí CTA trên trang, để team sale biết khách quan tâm mục nào.
 // Mỗi block/CTA mới phải thêm một giá trị vào mảng này (server dùng lại để
 // validate).

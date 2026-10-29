@@ -5,10 +5,13 @@ export async function fetchCMS<T = unknown>(
   path: string,
   params: Record<string, unknown> = {},
 ): Promise<T> {
-  const { strapiUrl, strapiToken } = useRuntimeConfig();
+  const { strapiUrl, strapiInternalUrl, strapiToken } = useRuntimeConfig();
   const query = qs.stringify(params, { encodeValuesOnly: true });
 
-  const url = `${strapiUrl}/api${path}${query ? `?${query}` : ""}`;
+  // Server-side gọi thẳng service CMS trong Docker; browser vẫn dùng strapiUrl public
+  // cho URL media (mapMedia).
+  const baseUrl = strapiInternalUrl || strapiUrl;
+  const url = `${baseUrl}/api${path}${query ? `?${query}` : ""}`;
 
   const res = await $fetch(url, {
     headers: { Authorization: `Bearer ${strapiToken}` },

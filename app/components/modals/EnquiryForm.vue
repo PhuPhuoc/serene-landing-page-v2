@@ -34,6 +34,9 @@ const copy = computed(() =>
         sending: "Đang gửi…",
         submitFailed: "Chưa gửi được. Vui lòng thử lại.",
         success: "Cảm ơn bạn — chúng tôi sẽ liên hệ trong thời gian sớm nhất.",
+        rateLimitTitle: "Bạn đã gửi quá nhiều lần",
+        rateLimitBody: "Vui lòng chờ team sale phản hồi nhé.",
+        rateLimitNext: "Bạn có thể gửi lại sau",
         close: "Đóng",
       }
     : {
@@ -51,6 +54,9 @@ const copy = computed(() =>
         sending: "Sending…",
         submitFailed: "Could not send your enquiry. Please try again.",
         success: "Thank you — we'll be in touch shortly.",
+        rateLimitTitle: "You've sent too many enquiries",
+        rateLimitBody: "Please wait for our sales team to get back to you.",
+        rateLimitNext: "You can send another enquiry after",
         close: "Close",
       },
 );
@@ -67,6 +73,32 @@ const submitted = ref(false);
 const pending = ref(false);
 const successRef = ref<HTMLElement | null>(null);
 const errors = reactive({ name: "", email: "", mobile: "", form: "" });
+
+// Giới hạn số lần gửi thành công trong cửa sổ 24h (localStorage).
+const {
+  blocked,
+  nextAllowedAt,
+  refresh: refreshRateLimit,
+  record: recordSubmit,
+} = useEnquiryRateLimit();
+
+const nextAllowedLabel = computed(() => {
+  if (!nextAllowedAt.value) return "";
+  return new Intl.DateTimeFormat(isVi.value ? "vi-VN" : "en-GB", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(new Date(nextAllowedAt.value));
+});
+
+let rateLimitTimer: ReturnType<typeof setInterval> | undefined;
+
+onMounted(() => {
+  refreshRateLimit();
+  // Mở modal lâu qua mốc được gửi lại: cập nhật để hết chặn đúng hạn.
+  rateLimitTimer = setInterval(refreshRateLimit, 60_000);
+});
+
+onBeforeUnmount(() => clearInterval(rateLimitTimer));
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Cho phép +84/0..., khoảng trắng/dấu chấm/gạch nối; sau khi chuẩn hoá chỉ còn
@@ -108,7 +140,12 @@ function validate(): boolean {
 }
 
 async function onSubmit() {
-  if (pending.value || !validate()) return;
+  if (pending.value) return;
+
+  refreshRateLimit();
+  if (blocked.value) return;
+
+  if (!validate()) return;
 
   const payload: ModalEnquiry = {
     modalKey: props.modalKey,
@@ -125,6 +162,7 @@ async function onSubmit() {
     // Server Nitro validate + log rồi sẽ gọi Mailchimp; client không log nữa.
     await $fetch("/api/enquiry", { method: "POST", body: payload });
 
+    recordSubmit();
     submitted.value = true;
     await nextTick();
     successRef.value?.focus();
@@ -148,6 +186,21 @@ async function onSubmit() {
     <button
       type="button"
       class="enquiry-btn enquiry-btn--outline"
+      @click="emit('close')"
+    >
+      {{ copy.close }}
+    </button>
+  </div>
+
+  <div v-else-if="blocked" class="enquiry-blocked" role="alert">
+    <p class="enquiry-blocked-title">{{ copy.rateLimitTitle }}</p>
+    <p>{{ copy.rateLimitBody }}</p>
+    <p v-if="nextAllowedLabel" class="enquiry-blocked-next">
+      {{ copy.rateLimitNext }} {{ nextAllowedLabel }}
+    </p>
+    <button
+      type="button"
+      class="enquiry-btn enquiry-btn--outline mt-2"
       @click="emit('close')"
     >
       {{ copy.close }}
@@ -340,5 +393,14 @@ async function onSubmit() {
 }
 .enquiry-success {
   @apply mt-7 flex flex-col items-start gap-6 border border-warm-600 bg-warm-50 px-5 py-6 text-base text-dark sm:mt-8;
+}
+.enquiry-blocked {
+  @apply mt-7 flex flex-col items-start gap-3 border border-warm-600 bg-warm-50 px-5 py-6 text-base text-dark sm:mt-8;
+}
+.enquiry-blocked-title {
+  @apply font-serif text-2xl font-light leading-tight text-primary;
+}
+.enquiry-blocked-next {
+  @apply text-[13px] uppercase tracking-label text-muted;
 }
 </style>

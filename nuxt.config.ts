@@ -26,6 +26,8 @@ export default defineNuxtConfig({
 
     strapiToken: "",
     strapiUrl: "http://localhost:1337",
+    // URL nội bộ (Docker network) cho các call API server-side; rỗng = dùng strapiUrl.
+    strapiInternalUrl: "",
     // strapiUrl: "http://10.22.0.180:1337",
   },
 
@@ -45,6 +47,7 @@ export default defineNuxtConfig({
           href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Afacad+Flux:wght@100..1000&display=swap",
         },
         { rel: "icon", type: "image/jpeg", href: "/logo.jpg" },
+        // { rel: "icon", type: "image/jpeg", href: "/serene-logo-icon.svg" },
       ],
     },
   },
