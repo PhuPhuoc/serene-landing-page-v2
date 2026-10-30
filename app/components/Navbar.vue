@@ -342,10 +342,13 @@ function openNavCta(area: Extract<CtaSourceArea, "navbar" | "navbar-drawer">) {
                 ...linkProps(l),
                 ...(l.children?.length ? { type: 'button' } : {}),
               }"
-              :aria-expanded="l.children?.length ? openId === l.id : undefined"
+              :aria-expanded="
+                l.children?.length
+                  ? showPerksBar && perksItem?.id === l.id
+                  : undefined
+              "
               :aria-current="isActive(l) ? 'page' : undefined"
               :class="['nav-link', { 'nav-link--active': isActive(l) }]"
-              @click="l.children?.length ? toggle(l.id) : undefined"
             >
               {{ l.label }}
 
@@ -357,7 +360,13 @@ function openNavCta(area: Extract<CtaSourceArea, "navbar" | "navbar-drawer">) {
                 stroke="currentColor"
                 stroke-width="1.5"
                 aria-hidden="true"
-                :class="['nav-caret', { 'nav-caret--open': openId === l.id }]"
+                :class="[
+                  'nav-caret',
+                  {
+                    'nav-caret--open':
+                      showPerksBar && perksItem?.id === l.id,
+                  },
+                ]"
               >
                 <path
                   stroke-linecap="round"
@@ -366,23 +375,6 @@ function openNavCta(area: Extract<CtaSourceArea, "navbar" | "navbar-drawer">) {
                 />
               </svg>
             </component>
-
-            <!-- menu con: click/accordion trên mobile, hover trên desktop.
-                 Ẩn khi thanh bar dưới header đang hiện (tránh trùng lặp) -->
-            <ul
-              v-if="l.children && l.children.length > 0 && !showPerksBar"
-              class="nav-submenu"
-            >
-              <li v-for="child in l.children" :key="child.id">
-                <NuxtLink
-                  v-bind="linkProps(child)"
-                  :aria-current="isActive(child) ? 'page' : undefined"
-                  class="nav-submenu-link"
-                >
-                  {{ child.label }}
-                </NuxtLink>
-              </li>
-            </ul>
           </li>
         </ul>
       </nav>
@@ -721,16 +713,6 @@ function openNavCta(area: Extract<CtaSourceArea, "navbar" | "navbar-drawer">) {
 }
 .nav-item:hover .nav-caret {
   @apply rotate-180;
-}
-.nav-submenu {
-  @apply hidden lg:absolute lg:left-0 lg:top-full lg:block lg:min-w-[220px] lg:rounded-sm lg:bg-cream lg:py-2 lg:text-dark lg:shadow-dropdown lg:ring-1 lg:ring-dark/5 lg:invisible lg:translate-y-2 lg:opacity-0 lg:transition lg:duration-200;
-}
-.nav-item:hover > .nav-submenu,
-.nav-item:focus-within > .nav-submenu {
-  @apply lg:visible lg:translate-y-0 lg:opacity-100;
-}
-.nav-submenu-link {
-  @apply block px-4 py-2.5 text-sm hover:bg-warm-200 hover:text-primary;
 }
 
 /* === Bên phải (desktop) === */
